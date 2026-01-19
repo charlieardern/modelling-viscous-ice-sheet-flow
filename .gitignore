@@ -1,3 +1,5 @@
 .venv
 figures
 .DS_Store
+animation_frames
+saved_objects
