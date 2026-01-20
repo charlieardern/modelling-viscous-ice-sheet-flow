@@ -3,4 +3,4 @@ figures
 .DS_Store
 animation_frames
 saved_objects
-linear_system/__pycache__
+src/linear_system/__pycache__
