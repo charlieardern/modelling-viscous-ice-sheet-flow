@@ -7,12 +7,15 @@ print("Running tensor_to_animation.py...")
 
 x = np.load("saved_objects/linear_analytical_x.npy")
 t = np.load("saved_objects/linear_analytical_t.npy")
-h = np.load("saved_objects/linear_analytical_solution.npy")
+h_an = np.load("saved_objects/linear_analytical_solution.npy")
+h_num = np.load("saved_objects/linear_numerical_solution.npy")
+h_num = h_num.reshape(h_num.shape[0], h_num.shape[1], 1)
 
 print("Generating frames...")
-for i in range(h.shape[1]):
+for i in range(h_an.shape[1]):
     plt.figure()
-    plt.plot(x[:,0,0], h[:,i,0])
+    plt.plot(x[:,0,0], h_an[:,i,0], c='red')
+    plt.plot(x[:,0,0], h_num[:,i,0], c='blue')
     plt.xlim(min(x[:,0,0]), max(x[:,0,0]))
     plt.ylim(0, 7)
     plt.savefig(f"animation_frames/analytical_linear_frame_{i:03d}")
@@ -43,6 +46,6 @@ ani = animation.ArtistAnimation(
 )
 
 # Save the animation (requires ffmpeg or ImageMagick)
-ani.save("figures/linear_analytical_solution.gif", writer="pillow", dpi=200)
+ani.save("figures/linear_solutions.gif", writer="pillow", dpi=200)
 
 print("Complete")
