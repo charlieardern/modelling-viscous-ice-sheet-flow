@@ -7,11 +7,13 @@ L = 4
 a = 0.02
 k = 0.01
 num_terms = 10
+num_t_steps=400
+dim=100
 
 pi = np.pi
 
-x = np.linspace(0,L, num=20).reshape(-1, 1, 1)
-t = np.linspace(0,100, num=100).reshape(1,-1, 1)
+x = np.linspace(0,L, num=dim).reshape(-1, 1, 1)
+t = np.linspace(0,99, num=num_t_steps).reshape(1,-1, 1)
 n = np.arange(0,num_terms, 1).reshape(1,1,-1)
 
 def A(n):
