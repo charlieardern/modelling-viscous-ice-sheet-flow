@@ -27,17 +27,19 @@ def compute_numerical_explicit(s_0, b, num_microsteps, num_t_steps, t_final, dim
     """Computes numerical solution for initial problem with h_0(x)=-h_G*x/L + 2*h_G with explicit time steps.
 
         Parameters:
-        - h_0 (function): Function for initial state of h at t=0
+        - s_0 (function): Function for initial state of s at t=0
+        - b (numpy array): Bedrock shape
         - num_microsteps (int): Number of steps to compute per time step (true time step=num_t_steps*num_microsteps)
         - num_t_steps (int): Number of time steps to compute solution at
         - t_final (int): end time for solution to be computed to
         - dim (int): Number of spatial grid points to use
         - L (float): Domain width -> [0, L]
-        - h_G (float): height of fixed boundary at x=L
+        - s_G (float): height of fixed boundary at x=L
         - a (float): Linear source term in PDE
-        - k (float): Diffusion coefficient
+        - g (float): gravitational field strength
+        - eta (float): viscosity coefficient
 
-        Returns h which is a numpy array of shape (dim, num_t_steps, 1) representing the solution on the specified domain in space and time.
+        Returns s which is a numpy array of shape (dim, num_t_steps, 1) representing the solution on the specified domain in space and time.
     """
     print("Calculating explicit numerical solution...")
     w = L/dim
