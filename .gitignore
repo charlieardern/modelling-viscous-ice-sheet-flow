@@ -4,3 +4,4 @@ figures
 animation_frames
 saved_objects
 src/linear_system/__pycache__
+src/nonlinear_system/__pycache__

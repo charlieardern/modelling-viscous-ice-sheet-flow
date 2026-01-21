@@ -10,8 +10,6 @@ t = np.load("saved_objects/linear_t.npy")
 h_an = np.load("saved_objects/linear_analytical_solution.npy")
 h_num_ex = np.load("saved_objects/linear_numerical_solution_ex.npy")
 h_num_im = np.load("saved_objects/linear_numerical_solution_im.npy")
-h_num = h_num_ex.reshape(h_num_ex.shape[0], h_num_ex.shape[1], 1)
-
 
 h_num_ex = h_num_ex.reshape(h_num_ex.shape[0],h_num_ex.shape[1],1)
 h_num_im = h_num_im.reshape(h_num_im.shape[0],h_num_im.shape[1],1)
