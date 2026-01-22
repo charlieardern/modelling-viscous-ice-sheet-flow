@@ -7,14 +7,18 @@ print("Running tensor_to_animation.py...")
 
 x = np.load("saved_objects/nonlinear_x.npy")
 t = np.load("saved_objects/nonlinear_t.npy")
-h_num = np.load("saved_objects/numerical_solution.npy")
-h_num = h_num.reshape(h_num.shape[0],h_num.shape[1],1)
+h_num_fd = np.load("saved_objects/numerical_solution_fd.npy")
+h_num_fd = h_num_fd.reshape(h_num_fd.shape[0],h_num_fd.shape[1],1)
+h_num_fv = np.load("saved_objects/numerical_solution_fv.npy")
+h_num_fv = h_num_fv.reshape(h_num_fv.shape[0],h_num_fv.shape[1],1)
 
 print("Generating frames...")
-for i in range(h_num.shape[1]):
+for i in range(h_num_fd.shape[1]):
     plt.figure(figsize=(10,7))
     plt.title("Numerical Solution for Nonlinear Diffusion Equation")
-    plt.plot(x[:,0,0], h_num[:,i,0], c='red', linestyle="solid", label="analytical")
+    plt.plot(x[:,0,0], h_num_fd[:,i,0], c='red', linestyle="dotted", label="numerical-fd")
+    plt.plot(x[:,0,0], h_num_fv[:,i,0], c='blue', linestyle="dashdot", label="numerical-fv")
+    plt.legend()
     plt.xlim(min(x[:,0,0]), max(x[:,0,0]))
     plt.ylim(0, 7)
     plt.savefig(f"animation_frames/numerical_frame_{i:03d}")
