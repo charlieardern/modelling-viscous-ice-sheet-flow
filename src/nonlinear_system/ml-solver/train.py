@@ -8,7 +8,16 @@ from models import FeatureEngineeredNeuralField
 
 from tqdm.auto import tqdm
 
+device = "mps" if torch.backends.mps.is_available() else "cpu"
 device = "cuda" if torch.cuda.is_available() else "cpu"
+
+if torch.cuda.is_available():
+    device = "cuda"
+elif torch.backends.mps.is_available():
+    device = "mps"
+else:
+    device="cpu"
+
 print(f"Training on device: {device}")
 
 # Set up physical system
@@ -22,8 +31,8 @@ w = L/dim
 g = 9.81
 eta = 20
 
-x = torch.linspace(0+0.5*w,L-0.5*w, steps=dim, requires_grad=True).reshape(-1, 1, 1).repeat(1,num_t_steps,1)
-t = torch.linspace(0,t_final, steps=num_t_steps, requires_grad=True).reshape(1,-1, 1).repeat(dim, 1, 1)
+x = torch.linspace(0+0.5*w,L-0.5*w, steps=dim, requires_grad=True).reshape(-1, 1, 1).repeat(1,num_t_steps,1).to(device)
+t = torch.linspace(0,t_final, steps=num_t_steps, requires_grad=True).reshape(1,-1, 1).repeat(dim, 1, 1).to(device)
 def s_0(x, s_G):
     return -s_G*x/L + 2*s_G
 s_t0 = s_0(x[:,0,0].reshape(dim,1,1), s_G).detach()
@@ -32,9 +41,9 @@ s_t0 = s_0(x[:,0,0].reshape(dim,1,1), s_G).detach()
 X = torch.concatenate([x,t], dim=2)
 
 # Bedrock at spacetime points
-bed = torch.zeros(dim, requires_grad=True).reshape(dim,1,1).repeat(1,num_t_steps,1)
+bed = torch.zeros(dim, requires_grad=True).reshape(dim,1,1).repeat(1,num_t_steps,1).to(device)
 
-model = FeatureEngineeredNeuralField(hidden_dim=256)
+model = FeatureEngineeredNeuralField(hidden_dim=256).to(device)
 optimizer = torch.optim.Adam(params=model.parameters(), lr=0.002)
 scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=30, gamma=0.5)
 
@@ -64,12 +73,12 @@ for epoch in tqdm(range(epochs)):
     )[0]
 
     # Both of shape (1, num_t_steps, 2):
-    boundary_0 = torch.concatenate([torch.zeros(num_t_steps).reshape(1,num_t_steps,1),t[0].reshape(1,num_t_steps,1)],axis=2)
+    boundary_0 = torch.concatenate([torch.zeros(num_t_steps).reshape(1,num_t_steps,1).to(device),t[0].reshape(1,num_t_steps,1)],axis=2)
     #boundary_L = torch.concatenate([L*torch.ones(num_t_steps).reshape(1,num_t_steps,1),t[0].reshape(1,num_t_steps,1)],axis=2)
     #print(f"boundary_L.shape: {boundary_L.shape}")
 
     #boundary_L_err = 0.01*torch.sum((model(boundary_L)-s_G)**2)
-    boundary_0_values = model(boundary_0, L, s_G, s_0(torch.zeros(1), s_G).reshape(1,1,1))
+    boundary_0_values = model(boundary_0, L, s_G, s_0(torch.zeros(1).to(device), s_G).reshape(1,1,1))
     boundary_0_deriv = torch.autograd.grad(
         outputs=boundary_0_values,
         inputs=boundary_0,

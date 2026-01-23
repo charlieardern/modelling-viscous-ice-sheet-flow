@@ -2,8 +2,13 @@ import numpy as np
 
 from solvers import compute_numerical_explicit_fd, compute_numerical_explicit_fv
 
+# def s_0(x, s_G):
+#     return -s_G*x/L + 2*s_G
+
 def s_0(x, s_G):
-    return -s_G*x/L + 2*s_G
+    c_1 = 0
+    c_2 = -0.1
+    return c_1*(x**3-L**3)+c_2*(x**2-L**2)+s_G
 
 pi = np.pi
 s_G = 2.5
