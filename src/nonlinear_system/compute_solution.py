@@ -1,6 +1,6 @@
 import numpy as np
 
-from solvers import compute_numerical_explicit_fd, compute_numerical_explicit_fv
+from solvers import compute_numerical_explicit_fv_upgraded, compute_numerical_explicit_fv
 
 # def s_0(x, s_G):
 #     return -s_G*x/L + 2*s_G
@@ -27,7 +27,7 @@ bed = np.zeros(dim).reshape(dim,1)
 x = np.linspace(0+0.5*w,L-0.5*w, num=dim).reshape(-1, 1, 1)
 t = np.linspace(0,t_final, num=num_t_steps).reshape(1,-1, 1)
 
-h_num_fd = compute_numerical_explicit_fd(s_0, bed, num_microsteps, num_t_steps, t_final, dim, L, s_G, a, g, eta)
+h_num_fd = compute_numerical_explicit_fv_upgraded(s_0, bed, num_microsteps, num_t_steps, t_final, dim, L, s_G, a, g, eta)
 h_num_fv = compute_numerical_explicit_fv(s_0, bed, num_microsteps, num_t_steps, t_final, dim, L, s_G, a, g, eta)
 
 np.save("saved_objects/nonlinear_t.npy", t)

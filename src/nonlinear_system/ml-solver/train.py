@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 from timeit import default_timer
 
-from models import MixedBasisModel
+from models import BetterFourierModel
 
 from tqdm.auto import tqdm
 
@@ -47,7 +47,7 @@ X = torch.concatenate([x,t], dim=2)
 # Bedrock at spacetime points
 bed = torch.zeros(dim, requires_grad=True).reshape(dim,1,1).repeat(1,num_t_steps,1).to(device)
 
-model = MixedBasisModel(hidden_dim=64, N_x=10, N_t=10, device=device).to(device)
+model = BetterFourierModel(hidden_dim=64, N_x=1, N_t=10, device=device).to(device)
 optimizer = torch.optim.Adam(params=model.parameters(), lr=0.002)
 scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=80, gamma=0.5)
 

@@ -98,11 +98,10 @@ class BetterFourierModel(nn.Module):
 
 
     def forward(self, X, s_init, L):
-
         k_x = (torch.arange(1, self.N_x+1).reshape(1,1,-1).to(self.device)-0.5)*torch.pi/L # (1, 1, N_x)
         k_t = torch.arange(1, self.N_t+1).reshape(1,1,-1).to(self.device) # (1, 1, N_t)
         c = torch.cos(k_x*X[:,:,0].unsqueeze(-1))
-        s = torch.sin(k_t*X[:,:,1].unsqueeze(-1))
+        s = torch.sin(k_t*X[:,:,1].unsqueeze(-1)/100)
         c = c.reshape(c.shape[0], c.shape[1], c.shape[2], 1)
         s = s.reshape(s.shape[0], s.shape[1], 1, s.shape[2])
         out = torch.sum(s*c*self.A,dim=(-1,-2)).unsqueeze(-1)

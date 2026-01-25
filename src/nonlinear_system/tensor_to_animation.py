@@ -9,7 +9,7 @@ x = np.load("saved_objects/nonlinear_x.npy")
 t = np.load("saved_objects/nonlinear_t.npy")
 h_num_fd = np.load("saved_objects/ml_solution.npy")
 h_num_fd = h_num_fd.reshape(h_num_fd.shape[0],h_num_fd.shape[1],1)
-h_num_fv = np.load("saved_objects/numerical_solution_fv.npy")
+h_num_fv = np.load("saved_objects/numerical_solution_fd.npy")
 h_num_fv = h_num_fv.reshape(h_num_fv.shape[0],h_num_fv.shape[1],1)
 
 print("Generating frames...")
