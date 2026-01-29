@@ -3,21 +3,24 @@ import matplotlib.pyplot as plt
 from solvers import numerical_fv
 
 N = 200
-x_G_0 = 6
-alpha = -0.1
-nu = 2
+x_G_0 = 3
+alpha = 0.1
+nu = 400
 q_0 = 1
 num_steps = 100
-num_microsteps = 500
-t_final = 10
+num_microsteps = 5000
+t_final = 100
 rho_w = 1000
 rho = 917
 g = 9.81
 
 # initial state:
-h_0 = 2*np.sqrt(1-np.linspace(0,1,num=N))
-
+#h_0 = np.sqrt(1-np.linspace(0,1,num=N))+0.002
+h_0 = 1-np.linspace(0,1,num=N)+0.002
 x, h = numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, rho, alpha, q_0)
+
+np.save("saved_objects/full_h.npy", h)
+np.save("saved_objects/full_x.npy", x)
 
 t = np.linspace(0, t_final, num=num_steps+1)
 t_2d = np.tile(2, (N, 1))
