@@ -14,10 +14,11 @@ for i in range(h.shape[1]):
     plt.title("Numerical Solution for Nonlinear Diffusion Equation")
     plt.plot(x[:,i], h[:,i], c='blue', linestyle="solid", label="numerical-fv")
     plt.legend()
-    plt.xlim(0, 500)
-    plt.ylim(-50, 15)
+    plt.xlim(0, 100)
+    plt.ylim(-10, 15)
     plt.plot([x[-1,i], x[-1,i]], [-0.1*x[-1,i], 0], c='blue')
-    plt.plot([0,500],[0,-50], c='black') #bedrock illustration with alpha=-0.1
+    plt.plot([0,100],[0,-10], c='black') #bedrock illustration with alpha=-0.1
+    plt.plot([0,100], [0,0], c="blue", alpha=0.2)
     plt.savefig(f"animation_frames/full_numerical_frame_{i:03d}")
     plt.close()
 print("Complete.")

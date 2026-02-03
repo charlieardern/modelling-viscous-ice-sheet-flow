@@ -26,34 +26,24 @@ def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, r
     x_G = x_G_0
     x_G_list.append(x_G)
 
-
-    def G_plus(h):
-        h_plus = np.concatenate([h[1:],-2*h[-1].reshape(1)], axis=0)
-        return chi_plus*N*(h_plus-h)
-
-    # def G_plus(h):
-    #     h_minus = np.concatenate([np.zeros(1), h[:-1]], axis=0)
-    #     return chi_plus*N*(h-h_minus)
-    
-    def G_minus(h):
-        h_minus = np.concatenate([np.zeros(1), h[:-1]], axis=0)
-        return chi_minus*N*(h-h_minus)
     
     def F_plus(h):
-        h_plus = np.concatenate([h[1:],-2*h[-1].reshape(1)], axis=0)
-        return (0.5*(h_plus+h)+A*chi_plus)**3*N*(h_plus-h)
-    
+        h_plus = np.concatenate([h[1:],np.zeros(1)], axis=0)
+        h_term_1 = h_plus + h
+        h_term_1[-1] = 0
+
+        h_term_2 = h_plus - h
+        h_term_2[-1] = -2*h[-1]
+        return (0.5*h_term_1 + A*chi_plus)**3*N*h_term_2    
     def F_minus(h, x_G):
         h_minus = np.concatenate([np.zeros(1), h[:-1]], axis=0)
         boundary_constant = np.zeros(N)
         boundary_constant[0] = -x_G
-        return (0.5*(h+h_minus)+A*chi_minus)**3*N*(h-h_minus)+boundary_constant
+        first_term = (0.5*(h+h_minus)+A*chi_minus)**3*N*(h-h_minus)
+        first_term[0]=0
+        return first_term + boundary_constant
     
     def x_G_dot(h, x_G):
-        # print(f"value: {N*x_G*h[-1]}")
-        # print(f"N: {N}")
-        # print(f"x_G: {x_G}")
-        #print(f"h[-1]: {h[-1]}")
         #time.sleep(1)
         term_1 = 1.5*(A*x_G)**2*(2*N*h[-1]/x_G-x_G/(2*N*h[-1]))
         term_2 = 2*A**2*x_G*N*h[-1]
@@ -61,14 +51,17 @@ def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, r
     
     def advective_term(h, x_G, dx_G_dt):
         h_minus = np.concatenate([np.zeros(1), h[:-1]], axis=0)
-        return N*dx_G_dt*chi*(h-h_minus)/x_G
+        term_1 = (h-h_minus)
+        term_1[0] = 2*x_G/((h[1]-3*h[0])*N)
+        return N*dx_G_dt*chi*term_1/x_G
     
     delta_t = t_final/(num_steps*num_microsteps)
 
     for i in range(num_steps):
         for ii in range(num_microsteps):
             dx_G_dt = x_G_dot(h, x_G)
-            #dh_dt = dx_G_dt*N/x_G*(G_plus(h)-G_minus(h))+N/(x_G**2)*(F_plus(h)-F_minus(h, x_G))
+            # print(f"x_G:{ x_G}")
+            # time.sleep(1)
             dh_dt = advective_term(h, x_G, dx_G_dt)+N/(x_G**2)*(F_plus(h)-F_minus(h, x_G))
             x_G = x_G + dx_G_dt*delta_t
             h = h + dh_dt*delta_t
