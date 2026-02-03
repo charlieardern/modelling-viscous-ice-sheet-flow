@@ -7,12 +7,17 @@ print("Running tensor_to_animation.py...")
 
 x = np.load("saved_objects/full_x.npy")
 h = np.load("saved_objects/full_h.npy")
+x_shelf = np.load("saved_objects/full_x_shelf.npy")
+H_shelf = np.load("saved_objects/full_H_shelf.npy")
+print(x.shape)
+print(x_shelf)
 
 print("Generating frames...")
-for i in range(h.shape[1]):
+for i in range(h.shape[1]-1):
     plt.figure(figsize=(10,7))
     plt.title("Numerical Solution for Nonlinear Diffusion Equation")
     plt.plot(x[:,i], h[:,i], c='blue', linestyle="solid", label="numerical-fv")
+    plt.plot(x_shelf[:,i], -H_shelf[:,i], c='blue', linestyle='solid')
     plt.legend()
     plt.xlim(0, 100)
     plt.ylim(-10, 15)

@@ -40,19 +40,21 @@ def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, r
     x_G_dot_list = []
     t_G_list = []
 
-    def compute_shelf(h, t, x_G_list, H_G_list, q_G_list, x_G_dot_list, t_G_list):
+    def compute_shelf(h, t, num_microsteps, x_G_list, H_G_list, q_G_list, x_G_dot_list, t_G_list):
         x_list = []
+        x_list.append(x_G_list[0])
         x_G_arr = np.array(x_G_list)
         H_G_arr = np.array(H_G_list)
         q_G_arr = np.array(q_G_list)
         x_G_dot_arr = np.array(x_G_dot_list)
         t_G_arr = np.array(t_G_list)
 
-        for idx in range(x_G.shape[0]):
-            x_i = x_G_arr[i]+np.sum(delta_t*q_G_arr[i:]/H_G_arr[i:])+(g_prime/(8*nu))*np.sum(delta_t*(t-t_G_arr[i:])*(q_G_arr[i:]-H_G_arr[i:]*x_G_dot_arr[i:]))
+        for iii in range(round((len(x_G_list)-1)/num_microsteps)):
+            idx = num_microsteps*iii
+            x_i = x_G_arr[idx]+np.sum(delta_t*q_G_arr[idx:]/H_G_arr[idx:])+(g_prime/(8*nu))*np.sum(delta_t*(t-t_G_arr[idx:])*(q_G_arr[idx:]-H_G_arr[idx:]*x_G_dot_arr[idx:]))
             x_list.append(x_i)
         x_arr = np.array(x_list)
-        H_arr = 8*nu*H_G_arr/(g_prime*H_G_arr*(t-t_G_arr)+8*nu)
+        H_arr = 8*nu*H_G_arr[::num_microsteps]/(g_prime*H_G_arr[::num_microsteps]*(t-t_G_arr[::num_microsteps])+8*nu)
         return x_arr, H_arr
         
     
@@ -70,11 +72,16 @@ def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, r
     chi_minus = j/N
     chi = (j+0.5)/N
 
-    # Create lists to hold variables at each time step
-    h_list = []
     h = h_0
-    x_G_list = []
     x_G = x_G_0
+
+    # Lists for final results
+    h_list = []
+    x_G_list = []
+
+    # Create lists to hold variables at each time step
+    h_full_list = []
+    x_G_full_list = []
     H_G_list = []
     q_G_list = []
     x_G_dot_list = []
@@ -83,6 +90,7 @@ def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, r
     # Append t=0 values to lists
     h_list.append(h.reshape(-1,1))
     x_G_list.append(x_G)
+    x_G_full_list.append(x_G)
     x_G_dot_list.append(x_G_dot(h, x_G))
     t_G_list.append(0)
     H_G = A*x_G
@@ -91,9 +99,19 @@ def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, r
 
     delta_t = t_final/(num_steps*num_microsteps)
 
+    x_shelf_list = []
+    H_shelf_list = []
+
     for i in range(num_steps):
         # Calculate shelf:
-
+        t = i*num_microsteps*delta_t
+        x_shelf, H_shelf = compute_shelf(h, t, num_microsteps, x_G_full_list, H_G_list, q_G_list, x_G_dot_list, t_G_list)
+        print(f"len x: {len(x_shelf)}")
+        print(f"len H: {len(H_shelf)}")
+        # x_shelf_list.append(x_shelf.reshape(-1,1))
+        # H_shelf_list.append(H_shelf.reshape(-1,1))
+        x_shelf_list.append(np.pad(x_shelf, (0, 100-len(x_shelf)), mode='edge').reshape(-1,1))
+        H_shelf_list.append(np.pad(H_shelf, (0, 100-len(H_shelf)), mode='edge').reshape(-1,1))
 
         for ii in range(num_microsteps):
             dx_G_dt = x_G_dot(h, x_G)
@@ -102,15 +120,18 @@ def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, r
             dh_dt = advective_term(h, x_G, dx_G_dt)+N/(x_G**2)*(F_plus(h)-F_minus(h, x_G))
             x_G = x_G + dx_G_dt*delta_t
             h = h + dh_dt*delta_t
-        
-        x_G_list.append(x_G)
+
+            x_G_full_list.append(x_G)
+            h_full_list.append(h)
+            x_G_dot_list.append(x_G_dot(h, x_G))
+            H_G = A*x_G
+            H_G_list.append(H_G)
+            q_G_list.append(-g/(3*nu)*H_G**3*(-2*h[-1]*N/x_G))
+            t_G_list.append((i+1)*num_microsteps*delta_t)
+
         h_list.append(h.reshape(-1,1))
-        x_G_dot_list.append(x_G_dot(h, x_G))
-        t_G_list.append(0)
-        H_G = A*x_G
-        H_G_list.append(H_G)
-        q_G_list.append(-g/(3*nu)*H_G**3*(-2*h[-1]*N/x_G))
-        t_G_list.append((i+1)*num_microsteps*delta_t)
+        x_G_list.append(x_G)
+        print(f"Completed step {i+1}/{num_steps}")
 
     
     #print(x_G_list)
@@ -121,6 +142,8 @@ def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, r
     x_G_tnsr = 2*B*C**4*np.array(x_G_list).reshape(1,-1)
     chi = np.linspace(0.5/N, 1-0.5/N, num=N).reshape(-1,1)
     x_tnsr = chi*x_G_tnsr
+    x_shelf_tnsr = 2*B*C**4*np.concatenate(x_shelf_list, axis=1)
+    H_shelf_tnsr = B*C*np.concatenate(H_shelf_list, axis=1)
 
     print(x_tnsr)
-    return x_tnsr, h_tnsr
+    return x_tnsr, h_tnsr, x_shelf_tnsr, H_shelf_tnsr

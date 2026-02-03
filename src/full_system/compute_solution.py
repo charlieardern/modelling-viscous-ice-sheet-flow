@@ -17,10 +17,12 @@ g = 9.81
 # initial state:
 #h_0 = np.sqrt(1-np.linspace(0,1,num=N))+0.002
 h_0 = 1-np.linspace(0,1,num=N)+0.002
-x, h = numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, rho, alpha, q_0)
+x, h, x_shelf, H_shelf = numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, rho, alpha, q_0)
 
 np.save("saved_objects/full_h.npy", h)
 np.save("saved_objects/full_x.npy", x)
+np.save("saved_objects/full_H_shelf.npy", H_shelf)
+np.save("saved_objects/full_x_shelf.npy", x_shelf)
 
 t = np.linspace(0, t_final, num=num_steps+1)
 t_2d = np.tile(2, (N, 1))
