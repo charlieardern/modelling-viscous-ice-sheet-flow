@@ -11,6 +11,7 @@ def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, r
         h_term_2 = h_plus - h
         h_term_2[-1] = -2*h[-1]
         return (0.5*h_term_1 + A*chi_plus)**3*N*h_term_2    
+    
     def F_minus(h, x_G):
         h_minus = np.concatenate([np.zeros(1), h[:-1]], axis=0)
         boundary_constant = np.zeros(N)
@@ -40,21 +41,25 @@ def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, r
     x_G_dot_list = []
     t_G_list = []
 
-    def compute_shelf(h, t, num_microsteps, x_G_list, H_G_list, q_G_list, x_G_dot_list, t_G_list):
+    def compute_shelf(t, num_microsteps, x_G_list, H_G_list, q_G_list, x_G_dot_list, t_G_list):
         x_list = []
-        x_list.append(x_G_list[0])
-        x_G_arr = np.array(x_G_list)
-        H_G_arr = np.array(H_G_list)
-        q_G_arr = np.array(q_G_list)
-        x_G_dot_arr = np.array(x_G_dot_list)
-        t_G_arr = np.array(t_G_list)
+        x_list.append(2*B*C**4*x_G_list[0])
+        x_G_arr = 2*B*C**4*np.array(x_G_list)
+        H_G_arr = np.array(H_G_list)*B*C
+        q_G_arr = np.array(q_G_list)*B**3/2
+        x_G_dot_arr = np.array(x_G_dot_list)*q_0/(B*C)
+        t_G_arr = np.array(t_G_list)*2*B**2*C**5
+        dt_scaled = delta_t*2*B**2*C**5
+        t_scaled = t*2*B**2*C**5
 
         for iii in range(round((len(x_G_list)-1)/num_microsteps)):
             idx = num_microsteps*iii
-            x_i = x_G_arr[idx]+np.sum(delta_t*q_G_arr[idx:]/H_G_arr[idx:])+(g_prime/(8*nu))*np.sum(delta_t*(t-t_G_arr[idx:])*(q_G_arr[idx:]-H_G_arr[idx:]*x_G_dot_arr[idx:]))
+            term_1 = np.sum(dt_scaled*q_G_arr[idx:]/H_G_arr[idx:])
+            term_2 = (g_prime/(8*nu))*np.sum(dt_scaled*(t_scaled-t_G_arr[idx:])*(q_G_arr[idx:]-H_G_arr[idx:]*x_G_dot_arr[idx:]))
+            x_i = x_G_arr[idx]+term_1+term_2
             x_list.append(x_i)
         x_arr = np.array(x_list)
-        H_arr = 8*nu*H_G_arr[::num_microsteps]/(g_prime*H_G_arr[::num_microsteps]*(t-t_G_arr[::num_microsteps])+8*nu)
+        H_arr = 8*nu*H_G_arr[::num_microsteps]/(g_prime*H_G_arr[::num_microsteps]*(t_scaled-t_G_arr[::num_microsteps])+8*nu)
         return x_arr, H_arr
         
     
@@ -105,9 +110,7 @@ def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, r
     for i in range(num_steps):
         # Calculate shelf:
         t = i*num_microsteps*delta_t
-        x_shelf, H_shelf = compute_shelf(h, t, num_microsteps, x_G_full_list, H_G_list, q_G_list, x_G_dot_list, t_G_list)
-        print(f"len x: {len(x_shelf)}")
-        print(f"len H: {len(H_shelf)}")
+        x_shelf, H_shelf = compute_shelf(t, num_microsteps, x_G_full_list, H_G_list, q_G_list, x_G_dot_list, t_G_list)
         # x_shelf_list.append(x_shelf.reshape(-1,1))
         # H_shelf_list.append(H_shelf.reshape(-1,1))
         x_shelf_list.append(np.pad(x_shelf, (0, 100-len(x_shelf)), mode='edge').reshape(-1,1))
@@ -127,23 +130,19 @@ def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, r
             H_G = A*x_G
             H_G_list.append(H_G)
             q_G_list.append(-g/(3*nu)*H_G**3*(-2*h[-1]*N/x_G))
-            t_G_list.append((i+1)*num_microsteps*delta_t)
+            t_G_list.append(i*num_microsteps*delta_t+(ii+1)*delta_t)
 
         h_list.append(h.reshape(-1,1))
         x_G_list.append(x_G)
         print(f"Completed step {i+1}/{num_steps}")
 
-    
-    #print(x_G_list)
-    print(2*B*C**4)
-    print(max(x_G_list))
     # Concat into tensors and scale back to dimensional space
     h_tnsr = B*C*np.concatenate(h_list, axis=1)
     x_G_tnsr = 2*B*C**4*np.array(x_G_list).reshape(1,-1)
     chi = np.linspace(0.5/N, 1-0.5/N, num=N).reshape(-1,1)
     x_tnsr = chi*x_G_tnsr
-    x_shelf_tnsr = 2*B*C**4*np.concatenate(x_shelf_list, axis=1)
-    H_shelf_tnsr = B*C*np.concatenate(H_shelf_list, axis=1)
+    x_shelf_tnsr = np.concatenate(x_shelf_list, axis=1)
+    H_shelf_tnsr = np.concatenate(H_shelf_list, axis=1)
 
     print(x_tnsr)
     return x_tnsr, h_tnsr, x_shelf_tnsr, H_shelf_tnsr

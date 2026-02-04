@@ -9,21 +9,25 @@ x = np.load("saved_objects/full_x.npy")
 h = np.load("saved_objects/full_h.npy")
 x_shelf = np.load("saved_objects/full_x_shelf.npy")
 H_shelf = np.load("saved_objects/full_H_shelf.npy")
-print(x.shape)
-print(x_shelf)
+
+bed_alpha = 0.17
+domain_width=150
 
 print("Generating frames...")
 for i in range(h.shape[1]-1):
     plt.figure(figsize=(10,7))
     plt.title("Numerical Solution for Nonlinear Diffusion Equation")
     plt.plot(x[:,i], h[:,i], c='blue', linestyle="solid", label="numerical-fv")
-    plt.plot(x_shelf[:,i], -H_shelf[:,i], c='blue', linestyle='solid')
+    #plt.plot(x_shelf[:,i], -H_shelf[:,i], c='red', linestyle='solid')
+    plt.plot(x_shelf[1:,i], -H_shelf[1:,i], c='red', linestyle='solid')
+    plt.plot([x_shelf[1,i], x_shelf[1,i]], [-H_shelf[1,i], 0], c='red')
+    plt.plot([x_shelf[-1,i], x_shelf[1,i]], [0,0], c='red')
     plt.legend()
-    plt.xlim(0, 100)
-    plt.ylim(-10, 15)
-    plt.plot([x[-1,i], x[-1,i]], [-0.1*x[-1,i], 0], c='blue')
-    plt.plot([0,100],[0,-10], c='black') #bedrock illustration with alpha=-0.1
-    plt.plot([0,100], [0,0], c="blue", alpha=0.2)
+    plt.xlim(0, domain_width)
+    plt.ylim(-bed_alpha*domain_width, 15)
+    #plt.plot([x[-1,i], x[-1,i]], [-0.1*x[-1,i], 0], c='blue')
+    plt.plot([0,domain_width],[0,-bed_alpha*domain_width], c='black') #bedrock illustration with alpha=-0.1
+    plt.plot([0,domain_width], [0,0], c="blue", alpha=0.2)
     plt.savefig(f"animation_frames/full_numerical_frame_{i:03d}")
     plt.close()
 print("Complete.")
