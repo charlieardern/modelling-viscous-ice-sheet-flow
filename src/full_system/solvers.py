@@ -1,5 +1,6 @@
 import numpy as np
 import time
+from tqdm.auto import tqdm
 
 def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, rho, alpha, q_0):
     """Takes initial state tensor of shape (N,) as input and propagates"""
@@ -107,7 +108,8 @@ def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, r
     x_shelf_list = []
     H_shelf_list = []
 
-    for i in range(num_steps):
+    print("Computing solution...")
+    for i in tqdm(range(num_steps)):
         # Calculate shelf:
         t = i*num_microsteps*delta_t
         x_shelf, H_shelf = compute_shelf(t, num_microsteps, x_G_full_list, H_G_list, q_G_list, x_G_dot_list, t_G_list)
@@ -134,9 +136,10 @@ def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, r
 
         h_list.append(h.reshape(-1,1))
         x_G_list.append(x_G)
-        print(f"Completed step {i+1}/{num_steps}")
+        #print(f"Completed step {i+1}/{num_steps}")
 
     # Concat into tensors and scale back to dimensional space
+    print("Complete.")
     h_tnsr = B*C*np.concatenate(h_list, axis=1)
     x_G_tnsr = 2*B*C**4*np.array(x_G_list).reshape(1,-1)
     chi = np.linspace(0.5/N, 1-0.5/N, num=N).reshape(-1,1)

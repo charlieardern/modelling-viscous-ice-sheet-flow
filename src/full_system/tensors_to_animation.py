@@ -10,13 +10,13 @@ h = np.load("saved_objects/full_h.npy")
 x_shelf = np.load("saved_objects/full_x_shelf.npy")
 H_shelf = np.load("saved_objects/full_H_shelf.npy")
 
-bed_alpha = 0.17
+bed_alpha = 0.16
 domain_width=150
 
 print("Generating frames...")
 for i in range(h.shape[1]-1):
     plt.figure(figsize=(10,7))
-    plt.title("Numerical Solution for Nonlinear Diffusion Equation")
+    plt.title("Time evolution of ice sheet and shelf")
     plt.plot(x[:,i], h[:,i], c='blue', linestyle="solid", label="numerical-fv")
     #plt.plot(x_shelf[:,i], -H_shelf[:,i], c='red', linestyle='solid')
     plt.plot(x_shelf[1:,i], -H_shelf[1:,i], c='red', linestyle='solid')

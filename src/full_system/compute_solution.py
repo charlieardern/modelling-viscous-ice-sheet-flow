@@ -2,13 +2,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 from solvers import numerical_fv
 
-N = 1000
-x_G_0 = 1.0
-alpha = 0.17
-nu = 700
-q_0 = 1
+N = 200
+x_G_0 = 0.7
+alpha = 0.16
+nu = 150
+q_0 = 2
 num_steps = 100
-num_microsteps = 10000
+num_microsteps = 12000
 t_final = 200
 rho_w = 1000
 rho = 917
