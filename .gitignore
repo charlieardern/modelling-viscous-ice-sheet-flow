@@ -7,3 +7,4 @@ src/linear_system/__pycache__
 src/nonlinear_system/__pycache__
 src/nonlinear_system/ml-solver/__pycache__
 src/full_system/__pycache__
+src/full_system_nonzero_epsilon/__pycache__
