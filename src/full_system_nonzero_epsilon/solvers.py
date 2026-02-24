@@ -43,7 +43,6 @@ def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, r
 
     def compute_shelf(t, num_microsteps, x_G_list, H_G_list, q_G_list, x_G_dot_list, t_G_list):
         x_list = []
-        #x_list.append(2*B*C**4*x_G_list[0])
         x_G_arr = 2*B*C**4*np.array(x_G_list)
         H_G_arr = np.array(H_G_list)*B*C
         q_G_arr = np.array(q_G_list)*B**3/2
@@ -59,7 +58,6 @@ def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, r
             x_i = x_G_arr[idx]+term_1+term_2
             x_list.append(x_i)
         x_arr = np.array(x_list)
-        #print(f"x list len: {len(x_G_list)}")
         H_arr = 8*nu*H_G_arr[::num_microsteps]/(g_prime*H_G_arr[::num_microsteps]*(t_scaled-t_G_arr[::num_microsteps])+8*nu)
         return x_arr, H_arr
         
@@ -109,20 +107,15 @@ def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, r
     x_shelf_list = []
     H_shelf_list = []
 
-    print("Computing solution...")
     for i in tqdm(range(num_steps)):
         # Calculate shelf:
         t = i*num_microsteps*delta_t
         x_shelf, H_shelf = compute_shelf(t, num_microsteps, x_G_full_list, H_G_list, q_G_list, x_G_dot_list, t_G_list)
-        # x_shelf_list.append(x_shelf.reshape(-1,1))
-        # H_shelf_list.append(H_shelf.reshape(-1,1))
         x_shelf_list.append(np.pad(x_shelf, (0, 100-len(x_shelf)), mode='edge').reshape(-1,1))
         H_shelf_list.append(np.pad(H_shelf, (0, 100-len(H_shelf)), mode='edge').reshape(-1,1))
 
         for ii in range(num_microsteps):
             dx_G_dt = x_G_dot(h, x_G)
-            # print(f"x_G:{ x_G}")
-            # time.sleep(1)
             dh_dt = advective_term(h, x_G, dx_G_dt)+N/(x_G**2)*(F_plus(h, x_G)-F_minus(h, x_G)) + a
             x_G = x_G + dx_G_dt*delta_t
             h = h + dh_dt*delta_t
@@ -137,10 +130,8 @@ def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, r
 
         h_list.append(h.reshape(-1,1))
         x_G_list.append(x_G)
-        #print(f"Completed step {i+1}/{num_steps}")
 
     # Concat into tensors and scale back to dimensional space
-    print("Complete.")
     h_tnsr = B*C*np.concatenate(h_list, axis=1)
     x_G_tnsr = 2*B*C**4*np.array(x_G_list).reshape(1,-1)
     chi = np.linspace(0.5/N, 1-0.5/N, num=N).reshape(-1,1)
@@ -148,5 +139,4 @@ def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, r
     x_shelf_tnsr = np.concatenate(x_shelf_list, axis=1)
     H_shelf_tnsr = np.concatenate(H_shelf_list, axis=1)
 
-    print(x_tnsr)
     return x_tnsr, h_tnsr, x_shelf_tnsr, H_shelf_tnsr

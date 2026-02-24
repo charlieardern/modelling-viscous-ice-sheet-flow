@@ -2,8 +2,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import animation
 import glob
+import os
+from tqdm.auto import tqdm
 
-print("Running tensor_to_animation.py...")
+figures_folder = "figures/"
+animation_folder = "animation_frames/"
+os.makedirs(figures_folder, exist_ok=True)
+os.makedirs(animation_folder, exist_ok=True)
 
 x = np.load("saved_objects/full_x.npy")
 h = np.load("saved_objects/full_h.npy")
@@ -14,35 +19,24 @@ bed_alpha = 0.16
 domain_width=160
 
 print("Generating frames...")
-for i in range(h.shape[1]-1):
+for i in tqdm(range(h.shape[1]-1)):
     h_above_water = h[-1,i]
     plt.figure(figsize=(10,7))
     plt.title("Time evolution of ice sheet and shelf")
     plt.plot(x[:,i], h[:,i], c='blue', linestyle="solid", label="sheet")
-    #plt.plot(x_shelf[:,i], -H_shelf[:,i], c='red', linestyle='solid')
     plt.plot(x_shelf[:,i], -H_shelf[:,i]+h_above_water, c='red', linestyle='solid', label='shelf')
     plt.plot([x_shelf[0,i], x_shelf[0,i]], [-H_shelf[0,i]+h_above_water, h_above_water], c='red')
     plt.plot([x_shelf[-1,i], x_shelf[0,i]], [h_above_water,h_above_water], c='red')
-    
     plt.xlim(0, domain_width)
     plt.ylim(-bed_alpha*domain_width, 15)
-    #plt.plot([x[-1,i], x[-1,i]], [-0.1*x[-1,i], 0], c='blue')
     plt.plot([0,domain_width],[0,-bed_alpha*domain_width], c='black', label='bedrock') #bedrock illustration
     plt.plot([0,domain_width], [0,0], c="blue", alpha=0.2, label='water line')
     plt.legend()
-    plt.savefig(f"animation_frames/full_numerical_frame_{i:03d}")
+    plt.savefig(animation_folder + f"full_numerical_frame_{i:03d}")
     plt.close()
-print("Complete.")
-
-print(x_shelf[:,-1])
-print(H_shelf[:,-1])
-
-plt.figure()
-plt.plot(x[:,-1], h[:,-1])
-plt.savefig("figures/test.png")
 
 print("Creating animation...")
-filenames = sorted(glob.glob("animation_frames/full_numerical_frame_*.png"))  # noqa: PTH207
+filenames = sorted(glob.glob("animation_frames/full_numerical_frame_*.png"))
 
 fig = plt.figure()
 plt.axis("off")
@@ -66,6 +60,6 @@ ani = animation.ArtistAnimation(
     repeat_delay=3000,
 )
 # Save the animation (requires ffmpeg or ImageMagick)
-ani.save("figures/full_solution.gif", writer="pillow", dpi=200)
+ani.save(figures_folder + "full_solution.gif", writer="pillow", dpi=200)
 
 print("Complete.")

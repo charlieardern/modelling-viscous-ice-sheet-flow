@@ -1,5 +1,6 @@
 import numpy as np
 from solvers import numerical_fv
+import os
 
 N = 100
 x_G_0 = 0.7
@@ -14,14 +15,17 @@ g = 9.81
 a = 0.2
 L = 10
 
-
 # initial state:
-#h_0 = np.sqrt(1-np.linspace(0,1,num=N))+0.002
 h_0 = 1-np.linspace(0,1,num=N)+0.002+0.1
-x, h, x_shelf, H_shelf = numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, rho, alpha, a, L)
-print("Saving files...")
 
-np.save("saved_objects/full_h.npy", h)
-np.save("saved_objects/full_x.npy", x)
-np.save("saved_objects/full_H_shelf.npy", H_shelf)
-np.save("saved_objects/full_x_shelf.npy", x_shelf)
+print("Computing solution...")
+x, h, x_shelf, H_shelf = numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, rho, alpha, a, L)
+
+folder = "saved_objects/"
+os.makedirs(folder, exist_ok=True)
+
+np.save(folder + "full_h.npy", h)
+np.save(folder + "full_x.npy", x)
+np.save(folder + "full_H_shelf.npy", H_shelf)
+np.save(folder + "full_x_shelf.npy", x_shelf)
+print("Complete.")
