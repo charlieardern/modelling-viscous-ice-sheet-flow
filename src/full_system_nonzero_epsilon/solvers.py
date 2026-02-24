@@ -1,5 +1,4 @@
 import numpy as np
-import time
 from tqdm.auto import tqdm
 
 def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, rho, alpha, a, L):
