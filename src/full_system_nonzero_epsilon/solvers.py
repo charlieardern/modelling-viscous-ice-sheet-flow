@@ -2,7 +2,7 @@ import numpy as np
 import time
 from tqdm.auto import tqdm
 
-def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, rho, alpha, q_0):
+def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, rho, alpha, a, L):
     """Takes initial state tensor of shape (N,) as input and propagates"""
 
     def F_plus(h, x_G):
@@ -63,7 +63,7 @@ def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, r
         H_arr = 8*nu*H_G_arr[::num_microsteps]/(g_prime*H_G_arr[::num_microsteps]*(t_scaled-t_G_arr[::num_microsteps])+8*nu)
         return x_arr, H_arr
         
-    
+    q_0 = a*L
     N = h_0.shape[0]
     g_prime = g*(rho_w-rho)/rho_w
     A = 2*alpha*np.sqrt(g/g_prime)
@@ -123,7 +123,7 @@ def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, r
             dx_G_dt = x_G_dot(h, x_G)
             # print(f"x_G:{ x_G}")
             # time.sleep(1)
-            dh_dt = advective_term(h, x_G, dx_G_dt)+N/(x_G**2)*(F_plus(h, x_G)-F_minus(h, x_G))
+            dh_dt = advective_term(h, x_G, dx_G_dt)+N/(x_G**2)*(F_plus(h, x_G)-F_minus(h, x_G)) + a
             x_G = x_G + dx_G_dt*delta_t
             h = h + dh_dt*delta_t
 
