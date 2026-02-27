@@ -5,7 +5,7 @@ import os
 N = 100
 x_G_0 = 0.7
 alpha = 0.16
-nu = 150
+nu = 250
 num_steps = 100
 num_microsteps = 12000
 t_final = 200

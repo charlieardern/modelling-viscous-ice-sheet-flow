@@ -38,7 +38,7 @@ for i in tqdm(range(h.shape[1]-1)):
 print("Creating animation...")
 filenames = sorted(glob.glob("animation_frames/full_numerical_frame_*.png"))
 
-fig = plt.figure()
+fig = plt.figure(figsize=(10,5))
 plt.axis("off")
 
 # Create a list of image artists: each element must be a list (for ArtistAnimation)
