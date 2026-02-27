@@ -16,19 +16,19 @@ x_shelf = np.load("saved_objects/full_x_shelf.npy")
 H_shelf = np.load("saved_objects/full_H_shelf.npy")
 
 bed_alpha = 0.16
-domain_width=160
+domain_width=200
 
 print("Generating frames...")
 for i in tqdm(range(h.shape[1]-1)):
     h_above_water = h[-1,i]
-    plt.figure(figsize=(10,7))
+    plt.figure(figsize=(10,5))
     plt.title("Time evolution of ice sheet and shelf")
     plt.plot(x[:,i], h[:,i], c='blue', linestyle="solid", label="sheet")
     plt.plot(x_shelf[:,i], -H_shelf[:,i]+h_above_water, c='red', linestyle='solid', label='shelf')
     plt.plot([x_shelf[0,i], x_shelf[0,i]], [-H_shelf[0,i]+h_above_water, h_above_water], c='red')
     plt.plot([x_shelf[-1,i], x_shelf[0,i]], [h_above_water,h_above_water], c='red')
     plt.xlim(0, domain_width)
-    plt.ylim(-bed_alpha*domain_width, 15)
+    plt.ylim(-15, 15)
     plt.plot([0,domain_width],[0,-bed_alpha*domain_width], c='black', label='bedrock') #bedrock illustration
     plt.plot([0,domain_width], [0,0], c="blue", alpha=0.2, label='water line')
     plt.legend()

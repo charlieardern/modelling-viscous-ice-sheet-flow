@@ -12,8 +12,8 @@ t_final = 200
 rho_w = 1000
 rho = 917
 g = 9.81
-a = 0.2
-L = 10
+a = 0.025
+L = 80
 
 # initial state:
 h_0 = 1-np.linspace(0,1,num=N)+0.002+0.1
