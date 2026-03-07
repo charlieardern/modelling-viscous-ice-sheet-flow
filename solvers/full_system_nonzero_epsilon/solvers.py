@@ -36,8 +36,8 @@ def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, r
         h_minus = np.concatenate([np.zeros(1), h[:-1]], axis=0)
         h_minus_minus = np.concatenate([np.zeros(2), h[:-2]], axis=0)
         term_1 = 0.5*(3*h-4*h_minus+h_minus_minus)
-        term_1[0] = 2*x_G/((h[1]-3*h[0])*N)
-        term_1[1] = 1.5*(h[1]-h[0])-x_G/(N*(h[1]-3*h[0]))
+        term_1[0] = 8*x_G/((h[1]-3*h[0])**3*N)
+        term_1[1] = 1.5*(h[1]-h[0])-4*x_G/(N*(h[1]-3*h[0])**3)
         return N*dx_G_dt*chi*term_1/x_G
     
     h_list = []
