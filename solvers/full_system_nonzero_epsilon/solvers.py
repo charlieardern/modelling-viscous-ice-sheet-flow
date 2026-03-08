@@ -135,7 +135,7 @@ def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, r
 
         for ii in range(num_microsteps):
             dx_G_dt = x_G_dot(h, x_G)
-            dh_dt = advective_term(h, x_G, dx_G_dt)+N/(x_G**2)*(F_plus(h, x_G)-F_minus(h, x_G))# + D
+            dh_dt = advective_term(h, x_G, dx_G_dt)+N/(x_G**2)*(F_plus(h, x_G)-F_minus(h, x_G)) + D
             x_G = x_G + dx_G_dt*delta_t
             h = h + dh_dt*delta_t
 
