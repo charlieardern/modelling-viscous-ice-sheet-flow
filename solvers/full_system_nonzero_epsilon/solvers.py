@@ -119,7 +119,7 @@ def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, r
     t_G_list.append(0)
     H_G = A*x_G + eps*x_G
     H_G_list.append(H_G)
-    q_G_list.append(-g/(3*nu)*H_G**3*(2*(eps*x_G-h[-1])*N/x_G))
+    q_G_list.append(-g/(3*nu)*H_G**3*((8*eps*x_G+h[-2]-9*h[-1])*N/(3*x_G)))
 
     delta_t = t_final/(num_steps*num_microsteps)
 
@@ -144,7 +144,7 @@ def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, r
             x_G_dot_list.append(x_G_dot(h, x_G))
             H_G = A*x_G + eps*x_G
             H_G_list.append(H_G)
-            q_G_list.append(-g/(3*nu)*H_G**3*(2*(eps*x_G-h[-1])*N/x_G))
+            q_G_list.append(-g/(3*nu)*H_G**3*((8*eps*x_G+h[-2]-9*h[-1])*N/(3*x_G)))
             t_G_list.append(i*num_microsteps*delta_t+(ii+1)*delta_t)
 
         h_list.append(h.reshape(-1,1))
