@@ -1,5 +1,6 @@
 import numpy as np
 from tqdm.auto import tqdm
+from scipy.optimize import root_scalar
 
 def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, rho, alpha, a, L):
     """Takes initial state tensor of shape (N,) as input and propagates"""
@@ -9,7 +10,7 @@ def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, r
         h_term_1 = h_plus + h
         h_term_1[-1] = 2*eps*x_G
         h_term_2 = h_plus - h
-        h_term_2[-1] = 2*(eps*x_G-h[-1])
+        h_term_2[-1] = (8*eps*x_G+h[-2]-9*h[-1])/3
         return (0.5*h_term_1 + A*chi_plus)**3*N*h_term_2    
     
     def F_minus(h, x_G):
@@ -21,23 +22,32 @@ def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, r
         return first_term + boundary_constant
     
     def x_G_dot(h, x_G):
-        term_1 = 1.5*(eps+A)**2*x_G*(4*N**2*(eps*x_G-h[-1])**2-x_G**2)/(eps*x_G-2*N*(eps*x_G-h[-1]))
-        term_2 = -2*N*(eps+A)**2*x_G*(eps*x_G-h[-1])
+        dh_dchi = (8*eps*x_G+h[-2]-9*h[-1])*N/3
+        term_1 = 1.5*(eps+A)**2*x_G*(dh_dchi**2-x_G**2)/(eps*x_G-dh_dchi)
+        term_2 = -(eps+A)**2*x_G*dh_dchi
         return np.min([term_1, term_2])
     
-    # First order advective term (old)
-    # def advective_term(h, x_G, dx_G_dt):
-    #     h_minus = np.concatenate([np.zeros(1), h[:-1]], axis=0)
-    #     term_1 = (h-h_minus)
-    #     term_1[0] = 2*x_G/((h[1]-3*h[0])*N)
-    #     return N*dx_G_dt*chi*term_1/x_G
-
     def advective_term(h, x_G, dx_G_dt):
-        h_minus = np.concatenate([np.zeros(1), h[:-1]], axis=0)
-        h_minus_minus = np.concatenate([np.zeros(2), h[:-2]], axis=0)
-        term_1 = 0.5*(3*h-4*h_minus+h_minus_minus)
-        term_1[0] = 8*x_G/((h[1]-3*h[0])**3*N)
-        term_1[1] = 1.5*(h[1]-h[0])-4*x_G/(N*(h[1]-3*h[0])**3)
+
+        # Equation to be solved to find h_{-1}
+        def f(h_neg): return (0.5*(h[0]+h_neg))**3*(h[0]-h_neg)*N+x_G
+
+        if dx_G_dt > 0:
+            h_minus = np.concatenate([np.zeros(1), h[:-1]], axis=0)
+            h_minus_minus = np.concatenate([np.zeros(2), h[:-2]], axis=0)
+            h_neg = root_scalar(f, bracket=[0, 5], method="brentq").root # h_{-1}
+            term_1 = 0.5*(3*h-4*h_minus+h_minus_minus)
+            term_1[0] = 0.5*(h[1]-h_neg)
+            term_1[1] = 0.5*(3*h[1]-4*h[0]+h_neg)
+        
+        else:
+            h_plus = np.concatenate([h[1:], np.zeros(1)], axis=0)
+            h_plus_plus = np.concatenate([h[2:], np.zeros(2)], axis=0)
+            h_N = (8*eps*x_G-6*h[-1]+h[-2])/3
+            term_1 = 0.5*(-3*h+4*h_plus-h_plus_plus)
+            term_1[-1] = 0.5*(h_N-h[-2])
+            term_1[-2] = 0.5*(-3*h[-2]+4*h[-1]-h_N)
+        
         return N*dx_G_dt*chi*term_1/x_G
     
     h_list = []
