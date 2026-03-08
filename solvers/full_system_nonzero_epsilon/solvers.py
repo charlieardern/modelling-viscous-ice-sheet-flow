@@ -11,13 +11,13 @@ def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, r
         h_term_1[-1] = 2*eps*x_G
         h_term_2 = h_plus - h
         h_term_2[-1] = (8*eps*x_G+h[-2]-9*h[-1])/3
-        return (0.5*h_term_1 + A*chi_plus)**3*N*h_term_2    
+        return (0.5*h_term_1 + A*x_G*chi_plus)**3*N*h_term_2    
     
     def F_minus(h, x_G):
         h_minus = np.concatenate([np.zeros(1), h[:-1]], axis=0)
         boundary_constant = np.zeros(N)
         boundary_constant[0] = -x_G
-        first_term = (0.5*(h+h_minus)+A*chi_minus)**3*N*(h-h_minus)
+        first_term = (0.5*(h+h_minus)+A*x_G*chi_minus)**3*N*(h-h_minus)
         first_term[0]=0
         return first_term + boundary_constant
     
