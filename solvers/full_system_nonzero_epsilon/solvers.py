@@ -2,7 +2,7 @@ import numpy as np
 from tqdm.auto import tqdm
 from scipy.optimize import root_scalar
 
-def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, rho, alpha, a, L):
+def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, rho, alpha, a, L, test_mode=False):
     """Takes initial state tensor of shape (N,) as input and propagates"""
 
     def F_plus(h, x_G):
@@ -133,6 +133,7 @@ def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, r
         x_shelf_list.append(np.pad(x_shelf, (0, 100-len(x_shelf)), mode='edge').reshape(-1,1))
         H_shelf_list.append(np.pad(H_shelf, (0, 100-len(H_shelf)), mode='edge').reshape(-1,1))
 
+        # Calculate sheet:
         for ii in range(num_microsteps):
             dx_G_dt = x_G_dot(h, x_G)
             dh_dt = advective_term(h, x_G, dx_G_dt)+N/(x_G**2)*(F_plus(h, x_G)-F_minus(h, x_G)) + D
@@ -158,4 +159,17 @@ def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, r
     x_shelf_tnsr = np.concatenate(x_shelf_list, axis=1)
     H_shelf_tnsr = np.concatenate(H_shelf_list, axis=1)
 
-    return x_tnsr, h_tnsr, x_shelf_tnsr, H_shelf_tnsr
+    if np.isnan(h_tnsr).any():
+        converge = False
+    else:
+        converge = True
+
+    converge = not np.isnan(h_tnsr).any()
+
+    if test_mode:
+        out = converge, x_G_tnsr
+    
+    else:
+        out = x_tnsr, h_tnsr, x_shelf_tnsr, H_shelf_tnsr
+
+    return out
