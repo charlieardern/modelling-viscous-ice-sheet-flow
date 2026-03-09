@@ -3,4 +3,5 @@ figures
 .DS_Store
 animation_frames
 saved_objects
-solvers/full_system_nonzero_epsilon/__pycache__
+solvers/__pycache__
+tests/__pycache__
