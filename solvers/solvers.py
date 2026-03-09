@@ -2,7 +2,7 @@ import numpy as np
 from tqdm.auto import tqdm
 from scipy.optimize import root_scalar
 
-def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, rho, alpha, a, L, test_mode=False):
+def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, rho, alpha, a, L, test_mode=False, hide_output=False, sheet_accumulation=True):
     """Takes initial state tensor of shape (N,) as input and propagates"""
 
     def F_plus(h, x_G):
@@ -131,8 +131,7 @@ def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, r
     H_shelf_list = []
 
     diverged = False
-
-    for i in tqdm(range(num_steps)):
+    for i in tqdm(range(num_steps), disable=hide_output):
         # Calculate shelf:
         t = i*num_microsteps*delta_t
         if not test_mode:
@@ -143,7 +142,7 @@ def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, r
         # Calculate sheet:
         for ii in range(num_microsteps):
             dx_G_dt = x_G_dot(h, x_G)
-            dh_dt = advective_term(h, x_G, dx_G_dt)+N/(x_G**2)*(F_plus(h, x_G)-F_minus(h, x_G)) + D
+            dh_dt = advective_term(h, x_G, dx_G_dt)+N/(x_G**2)*(F_plus(h, x_G)-F_minus(h, x_G)) + D*int(sheet_accumulation)
             x_G = x_G + dx_G_dt*delta_t
             h = h + dh_dt*delta_t
 
@@ -156,9 +155,9 @@ def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, r
             t_G_list.append(i*num_microsteps*delta_t+(ii+1)*delta_t)
 
             if np.isnan(np.array(h)).any() and not diverged:
-                print(np.isnan(np.array(h)).any())
                 diverged = True
-                print("Solution has diverged.")
+                if not hide_output:
+                    print("Solution has diverged.")
                 return False, np.nan
 
         h_list.append(h.reshape(-1,1))
@@ -179,7 +178,8 @@ def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, r
         converge = True
 
     converge = not np.isnan(h_tnsr).any()
-    print(f"Converged: {converge}")
+    if not hide_output:
+        print(f"Converged: {converge}")
 
     if test_mode:
         out = converge, x_G_tnsr

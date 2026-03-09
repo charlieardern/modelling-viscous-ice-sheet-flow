@@ -27,6 +27,7 @@ for i in tqdm(range(h.shape[1]-1)):
     plt.plot(x_shelf[:,i], -H_shelf[:,i]+h_above_water, c='red', linestyle='solid', label='shelf')
     plt.plot([x_shelf[0,i], x_shelf[0,i]], [-H_shelf[0,i]+h_above_water, h_above_water], c='red')
     plt.plot([x_shelf[-1,i], x_shelf[0,i]], [h_above_water,h_above_water], c='red')
+    plt.plot([x_shelf[-1,i], x_shelf[-1,i]], [-bed_alpha*x[-1,i], -H_shelf[-1,i]+h_above_water], c='red')
     plt.xlim(0, domain_width)
     plt.ylim(-15, 15)
     plt.plot([0,domain_width],[0,-bed_alpha*domain_width], c='black', label='bedrock') #bedrock illustration

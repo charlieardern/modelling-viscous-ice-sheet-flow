@@ -1,5 +1,5 @@
 import numpy as np
-from solvers import numerical_fv
+from solvers.solvers import numerical_fv
 import os
 
 N = 100
