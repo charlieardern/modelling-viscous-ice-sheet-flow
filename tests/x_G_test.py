@@ -35,7 +35,7 @@ _ , x_G = numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rh
 
 x_G = x_G/(2*B*C**4)
 
-plt.figure(figsize=(7,4), dpi=300)
+plt.figure(figsize=(7,5), dpi=300)
 plt.xlabel(r"$t$ (s)", fontname="Latin Modern Roman", fontsize=14)
 plt.ylabel(r"$x_G$ (m)", fontname="Latin Modern Roman", fontsize=14)
 plt.title("Time evolution of grounding line position", fontname="Latin Modern Roman", fontsize=16)

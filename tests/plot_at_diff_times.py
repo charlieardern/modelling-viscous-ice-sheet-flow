@@ -42,6 +42,8 @@ plt.xlim(0, domain_width)
 plt.ylim(-1.5, 1.5)
 plt.xlabel(r"$\hat{x}$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
 plt.ylabel(r"$\hat{z}$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
+plt.plot([0,domain_width],[0,-A*domain_width], c='black', label='bedrock')
+plt.plot([0,domain_width], [0,0], c="blue", alpha=0.2, label='water line')
 
 for i in tqdm(range(h.shape[1]-1)):
     if (i%20 == 0) or (i == h.shape[1]-2):
@@ -51,8 +53,6 @@ for i in tqdm(range(h.shape[1]-1)):
         plt.plot([x_shelf[0,i], x_shelf[0,i]], [-H_shelf[0,i]+h_above_water, h_above_water], c='blue')
         plt.plot([x_shelf[-1,i], x_shelf[-1,i]], [-A*x[-1,i], -H_shelf[-1,i]+h_above_water], c='blue')
         plt.plot([x_shelf[-1,i], x_shelf[0,i]], [h_above_water,h_above_water], c='blue')
-        plt.plot([0,domain_width],[0,-A*domain_width], c='black', label='bedrock')
-        plt.plot([0,domain_width], [0,0], c="blue", alpha=0.1, label='water line')
 
 folder = "figures/"
 os.makedirs(folder, exist_ok=True)
