@@ -35,7 +35,11 @@ def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, r
         if dx_G_dt > 0:
             h_minus = np.concatenate([np.zeros(1), h[:-1]], axis=0)
             h_minus_minus = np.concatenate([np.zeros(2), h[:-2]], axis=0)
-            h_neg = root_scalar(f, bracket=[0, 5], method="brentq").root # h_{-1}
+            try:
+                h_neg = root_scalar(f, bracket=[0, 5], method="brentq").root # h_{-1}
+            except:
+                h_neg = np.nan
+
             term_1 = 0.5*(3*h-4*h_minus+h_minus_minus)
             term_1[0] = 0.5*(h[1]-h_neg)
             term_1[1] = 0.5*(3*h[1]-4*h[0]+h_neg)
@@ -126,6 +130,8 @@ def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, r
     x_shelf_list = []
     H_shelf_list = []
 
+    diverged = False
+
     for i in tqdm(range(num_steps)):
         # Calculate shelf:
         t = i*num_microsteps*delta_t
@@ -149,8 +155,11 @@ def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, r
             q_G_list.append(-g/(3*nu)*H_G**3*((8*eps*x_G+h[-2]-9*h[-1])*N/(3*x_G)))
             t_G_list.append(i*num_microsteps*delta_t+(ii+1)*delta_t)
 
-            if np.isnan(np.array(h)).any():
+            if np.isnan(np.array(h)).any() and not diverged:
+                print(np.isnan(np.array(h)).any())
+                diverged = True
                 print("Solution has diverged.")
+                return False, np.nan
 
         h_list.append(h.reshape(-1,1))
         x_G_list.append(x_G)
@@ -160,8 +169,9 @@ def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, r
     x_G_tnsr = 2*B*C**4*np.array(x_G_list).reshape(1,-1)
     chi = np.linspace(0.5/N, 1-0.5/N, num=N).reshape(-1,1)
     x_tnsr = chi*x_G_tnsr
-    x_shelf_tnsr = np.concatenate(x_shelf_list, axis=1)
-    H_shelf_tnsr = np.concatenate(H_shelf_list, axis=1)
+    if not test_mode:
+        x_shelf_tnsr = np.concatenate(x_shelf_list, axis=1)
+        H_shelf_tnsr = np.concatenate(H_shelf_list, axis=1)
 
     if np.isnan(h_tnsr).any():
         converge = False
