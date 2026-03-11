@@ -101,7 +101,7 @@ for t_idx in tqdm(range(len(timesteps))):
         if not boundary_crossed:
             # Wrapper hides all divergence output from solver
             with np.errstate(all="ignore"):
-                converge, _ = numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, rho, alpha, a, L, test_mode=True, hide_output=True)
+                _, _, converge, _ = numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, rho, alpha, a, L, test_mode=True, hide_output=True)
             if converge:
                 boundary_dt.append(scaled_t_steps[t_idx])
                 boundary_dchi.append(delta_chi)
