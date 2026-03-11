@@ -1,5 +1,5 @@
 import numpy as np
-from solvers.solvers import numerical_fv
+from solvers.solvers import numerical_fv_implicit
 import matplotlib.pyplot as plt
 import os
 from tqdm.auto import tqdm
@@ -9,7 +9,7 @@ x_G_0 = 0.3
 nu = 80
 num_steps = 100
 #num_microsteps = 12000
-t_final = 400
+t_final = 200
 rho_w = 1000
 rho = 917
 g = 9.81
@@ -18,7 +18,7 @@ L = 150
 
 q_0 = a*L
 g_prime = g*(rho_w-rho)/rho_w
-alpha = 0.24#0.5*np.sqrt(g_prime/g) # alpha required for A=1
+alpha = 0.5*np.sqrt(g_prime/g) # alpha required for A=1
 print(alpha)
 
 A = 2*alpha*np.sqrt(g/g_prime)
@@ -62,17 +62,19 @@ os.makedirs(folder, exist_ok=True)
 # Run test for delta_t order -------------------------------------------
 
 #microstep_list = np.round(np.linspace(8000, 20000, num=5)).astype(int)
-microstep_list = [20000, 40000, 80000, 160000, 320000]
+microstep_list = [10, 20, 40, 80, 160, 320, 640, 1280, 2560]
 rmse_list = []
-N = 500
+N = 200
 h_0 = 1-np.linspace(0,1,num=N)+0.002+0.1
-_, h_fine, _, _ = numerical_fv(h_0, 500000, num_steps, t_final, x_G_0, g, nu, rho_w, rho, alpha, a, L, test_mode=True)
-h_fine = h_fine[:,-1]/(B*C)
+# _, h_fine, _, _ = numerical_fv_implicit(h_0, 10000, num_steps, t_final, x_G_0, g, nu, rho_w, rho, alpha, a, L, test_mode=True)
+# h_fine = h_fine[:,-1]/(B*C)
 
 for i in tqdm(range(len(microstep_list))):
     num_microsteps = microstep_list[i]
-    _, h, _, _ = numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, rho, alpha, a, L, test_mode=True)
-
+    x, h, _, _ = numerical_fv_implicit(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, rho, alpha, a, L, test_mode=True, sheet_accumulation=False)
+    
+    h_fine = 1 - x[:,-1]/(2*B*C**4)
+    
     # Non-dimensionalise h:
     h_pred = h[:,-1]/(B*C)
     rmse_list.append(np.sqrt(np.mean((h_pred-h_fine)**2)))

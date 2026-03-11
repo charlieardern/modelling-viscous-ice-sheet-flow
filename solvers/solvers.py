@@ -1,6 +1,7 @@
 import numpy as np
 from tqdm.auto import tqdm
 from scipy.optimize import root_scalar
+from scipy.linalg import solve_banded
 
 def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, rho, alpha, a, L, test_mode=False, hide_output=False, sheet_accumulation=True):
     """Takes initial state tensor of shape (N,) as input and propagates"""
@@ -366,7 +367,17 @@ def numerical_fv_implicit(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu,
 
             adv = advective_term(h, x_G, dx_G_dt)
 
-            h = np.linalg.solve(M, h+const_term+(adv+D*int(sheet_accumulation))*delta_t)
+            #h = np.linalg.solve(M, h+const_term+(adv+D*int(sheet_accumulation))*delta_t)
+
+            # faster solve:
+            up = np.diag(M, k=1)
+            di = np.diag(M, k=0)
+            lo = np.diag(M, k=-1)
+            ab = np.zeros((3, N))
+            ab[0, 1:] = up
+            ab[1, :] = di
+            ab[2, :-1] = lo
+            h = solve_banded((1,1), ab, h+const_term+(adv+D*int(sheet_accumulation))*delta_t)
 
             x_G = x_G + dx_G_dt*delta_t
             x_G_full_list.append(x_G)
