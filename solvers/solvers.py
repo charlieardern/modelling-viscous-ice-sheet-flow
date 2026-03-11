@@ -377,8 +377,11 @@ def numerical_fv_implicit(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu,
             ab[0, 1:] = up
             ab[1, :] = di
             ab[2, :-1] = lo
-            h = solve_banded((1,1), ab, h+const_term+(adv+D*int(sheet_accumulation))*delta_t)
-
+            try:
+                h = solve_banded((1,1), ab, h+const_term+(adv+D*int(sheet_accumulation))*delta_t)
+            except ValueError:
+                return np.nan, np.nan, False, np.nan
+            
             x_G = x_G + dx_G_dt*delta_t
             x_G_full_list.append(x_G)
             h_full_list.append(h)
@@ -392,7 +395,7 @@ def numerical_fv_implicit(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu,
                 diverged = True
                 if not hide_output:
                     print("Solution has diverged.")
-                return False, np.nan
+                return np.nan, np.nan, False, np.nan
 
         h_list.append(h.reshape(-1,1))
         x_G_list.append(x_G)
