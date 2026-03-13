@@ -5,6 +5,12 @@ import os
 from tqdm.auto import tqdm
 from scipy.optimize import curve_fit
 
+plt.rcParams["font.family"] = "Latin Modern Roman"
+plt.rcParams["mathtext.fontset"] = "custom"
+plt.rcParams["mathtext.rm"] = "Latin Modern Roman"
+plt.rcParams["mathtext.it"] = "Latin Modern Roman:italic"
+plt.rcParams["mathtext.bf"] = "Latin Modern Roman:bold"
+
 def quadratic(x, a, b, c):
     return a*x**2+b*x + c
 

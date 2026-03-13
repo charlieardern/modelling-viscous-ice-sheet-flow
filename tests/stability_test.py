@@ -4,6 +4,12 @@ import matplotlib.pyplot as plt
 import os
 from tqdm.auto import tqdm
 
+plt.rcParams["font.family"] = "Latin Modern Roman"
+plt.rcParams["mathtext.fontset"] = "custom"
+plt.rcParams["mathtext.rm"] = "Latin Modern Roman"
+plt.rcParams["mathtext.it"] = "Latin Modern Roman:italic"
+plt.rcParams["mathtext.bf"] = "Latin Modern Roman:bold"
+
 #N = 100
 x_G_0 = 0.3
 alpha = 0.24
