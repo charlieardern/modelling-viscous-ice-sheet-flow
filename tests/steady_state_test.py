@@ -47,30 +47,20 @@ plt.rcParams["mathtext.rm"] = "Latin Modern Roman"
 plt.rcParams["mathtext.it"] = "Latin Modern Roman:italic"
 plt.rcParams["mathtext.bf"] = "Latin Modern Roman:bold"
 
-plt.figure(figsize=(7,6), dpi=300)
+fig, ax = plt.subplots(constrained_layout=True, figsize=(6,5), dpi=300)
+
 
 for i in range(len(times_to_plot)):
     label = f"t = {((a*L/(2*B**2*C**5))*times_to_plot[i]*t_final/num_steps):.1f}"
     h_pred = h[:,times_to_plot[i]]/(B*C)
-    plt.plot(x_pred, h_pred, label=label, c="orange", alpha=alphas[i], linewidth=2)
+    ax.plot(x_pred, h_pred, label=label, c="orange", alpha=alphas[i], linewidth=2)
 
-plt.rcParams["font.family"] = "Latin Modern Roman"
-plt.rcParams["mathtext.fontset"] = "cm"
-plt.plot(x_pred, (1-x_pred), label="Analytical \nsteady state", c="blue", alpha=0.6, linestyle="--", linewidth=1)
+ax.plot(x_pred, (1-x_pred), label="Analytical \nsteady state", c="blue", alpha=0.6, linestyle="--", linewidth=1)
 plt.legend(prop={"family":"Latin Modern Roman", "size":12})
-plt.xlabel(r"$\hat{x}$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
-plt.ylabel(r"$\hat{z}$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
-plt.title("Time evolution of sheet compared with steady state", fontname="Latin Modern Roman", fontsize=16)
+ax.set_xlabel(r"$x$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
+ax.set_ylabel(r"$z$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
+ax.set_title("Time evolution of sheet compared with steady state", fontname="Latin Modern Roman", fontsize=16)
 plt.savefig(folder + "steady_state_plot.png")
 plt.close()
-
-
-
-# plt.figure(figsize=(8,5), dpi=300)
-# plt.plot(x_pred, 1-x_pred-h_pred)
-# plt.title("(analytical - numerical) for steady state", fontname="Latin Modern Roman", fontsize=16)
-# plt.xlabel(r"$\hat{x}$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
-# plt.ylabel(r"$\hat{z}$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
-# plt.savefig(folder + "steady_state_diff_plot.png")
 
 print("Complete.")

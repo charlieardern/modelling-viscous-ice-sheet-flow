@@ -12,17 +12,17 @@ plt.rcParams["mathtext.bf"] = "Latin Modern Roman:bold"
 
 N = 100
 x_G_0 = 0.1
-alpha = 0.24
+alpha = 0.18
 nu = 80
 num_steps = 100
 num_microsteps = 500
-t_final = 280
+t_final = 320
 rho_w = 1000
 rho = 917
 g = 9.81
 a = 0.025
 L = 150
-domain_width = 5
+domain_width = 6
 
 q_0 = a*L
 g_prime = g*(rho_w-rho)/rho_w
@@ -34,8 +34,33 @@ D = 2*B*C**4/L
 
 print(f"A: {A}, D: {D}, ε: {eps}")
 
-
 print(f"scaled final time: {t_final*(a*L/(2*B**2*C**5))}")
+
+def sheet_and_shelf_coords(x, h, x_shelf, H_shelf):
+    x_coords = []
+    h_coords = []
+
+    # Sheet
+    x_coords.append(x[:,i].reshape(-1))
+    h_coords.append(h[:,i].reshape(-1))
+
+    # Top of shelf
+    x_coords.append(np.array([x_shelf[-1,i], x_shelf[0,i]]))
+    h_coords.append(np.array([h_above_water,h_above_water]))
+
+    # End of shelf
+    x_coords.append(np.array([x_shelf[0,i], x_shelf[0,i]]))
+    h_coords.append(np.array([-H_shelf[0,i]+h_above_water, h_above_water]))
+
+    # Shelf
+    x_coords.append(x_shelf[:,i].reshape(-1))
+    h_coords.append(-H_shelf[:,i].reshape(-1)+h_above_water)
+
+    # End bit
+    x_coords.append(np.array([x_shelf[-1,i], x_shelf[-1,i]]))
+    h_coords.append(np.array([-A*x[-1,i], -H_shelf[-1,i]+h_above_water]))
+
+    return np.concatenate(x_coords, axis=0), np.concatenate(h_coords, axis=0)
 
 # initial state:
 h_0 = 0.7*(1-np.linspace(0,1,num=N)+0.002+0.1)
@@ -49,32 +74,34 @@ h = h/(B*C)
 x_shelf = x_shelf/(2*B*C**4)
 H_shelf = H_shelf/(B*C)
 
-plt.figure(figsize=(10,4.8), dpi=400)
-plt.title("Time evolution of ice sheet and shelf", fontname = "Latin Modern Roman", fontsize=16)
-plt.axis('equal')
-plt.xlim(0, domain_width)
-plt.ylim(-1.1, 1.1)
-plt.xlabel(r"$\hat{x}$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
-plt.ylabel(r"$\hat{z}$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
-plt.plot([0,domain_width],[0,-A*domain_width], c='black', label='bedrock')
-plt.plot([0,domain_width], [0,0], c="blue", alpha=0.2, label='water line')
+fig, ax = plt.subplots(constrained_layout=True, figsize=(10,5), dpi=400)
+ax.set_title("Time evolution of ice sheet and shelf", fontname = "Latin Modern Roman", fontsize=16)
+#plt.axis('equal')
+ax.set_aspect('equal', adjustable='box')
+ax.set_xlim(0, domain_width)
+ax.set_ylim(-1.1, 1.1)
+ax.set_xlabel(r"$x$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
+ax.set_ylabel(r"$z$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
+ax.plot([0,domain_width],[0,-A*domain_width], c='black', label='bedrock')
+ax.plot([0,domain_width], [0,0], c="blue", alpha=0.2, label='water line')
 
-frames_to_plot = [0, 10, 18, 40, 58, 99]
+frames_to_plot = [0, 10, 25, 58, 99]
+alphas = [0.8, 0.8, 0.4, 0.8, 0.8]
+#alphas = np.linspace(0.8,0.8, num=len(frames_to_plot))
 
-for i in tqdm(range(h.shape[1]-1)):
-    #if (i%25 == 0) or (i == h.shape[1]-2):
-    if i in frames_to_plot:
-        h_above_water = h[-1,i]
-        plt.plot(x[:,i], h[:,i], c='blue', linestyle="solid", label="sheet")
-        plt.plot(x_shelf[:,i], -H_shelf[:,i]+h_above_water, c='blue', linestyle='solid', label='shelf')
-        plt.plot([x_shelf[0,i], x_shelf[0,i]], [-H_shelf[0,i]+h_above_water, h_above_water], c='blue')
-        plt.plot([x_shelf[-1,i], x_shelf[-1,i]], [-A*x[-1,i], -H_shelf[-1,i]+h_above_water], c='blue')
-        plt.plot([x_shelf[-1,i], x_shelf[0,i]], [h_above_water,h_above_water], c='blue')
-        print(f"Shape at dimensionless time: {(a*L/(2*B**2*C**5))*i*t_final/num_steps}")
+
+colours = ["red", "orange", "orange", "green", "blue"]
+
+for j in range(len(frames_to_plot)):
+    i = frames_to_plot[j]
+    h_above_water = h[-1,i]
+    label = f"t = {((a*L/(2*B**2*C**5))*i*t_final/num_steps):.1f}"
+    x_coords, h_coords = sheet_and_shelf_coords(x, h, x_shelf, H_shelf)
+    ax.plot(x_coords, h_coords, alpha = alphas[j], label=label, c=colours[j])
 
 folder = "figures/"
 os.makedirs(folder, exist_ok=True)
 
-plt.ylim(-1.1, 1.1)
+plt.legend()
 plt.savefig(folder + "plot_at_diff_times.png")
 print("Complete.")
