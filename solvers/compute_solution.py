@@ -1,5 +1,5 @@
 import numpy as np
-from solvers.solvers import numerical_fv_implicit
+from solvers.solvers import numerical_fv_implicit_general_b
 import os
 
 N = 100
@@ -19,7 +19,12 @@ L = 150
 h_0 = 1-np.linspace(0,1,num=N)+0.002+0.1
 
 print("Computing solution...")
-x, h, x_shelf, H_shelf = numerical_fv_implicit(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, rho, alpha, a, L)
+#x, h, x_shelf, H_shelf = numerical_fv_implicit(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, rho, alpha, a, L)
+
+x = np.linspace(0,20, num=5000)
+b = 1.666104322801496*x
+
+x, h, x_shelf, H_shelf = numerical_fv_implicit_general_b(h_0, x, b, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, rho, a, L)
 
 folder = "saved_objects/"
 os.makedirs(folder, exist_ok=True)

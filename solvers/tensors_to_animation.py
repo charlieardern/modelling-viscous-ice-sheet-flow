@@ -18,6 +18,9 @@ H_shelf = np.load("saved_objects/full_H_shelf.npy")
 bed_alpha = 0.24
 domain_width=200
 
+x_bed = np.linspace(0,50, num=200)
+y_bed = np.sin(0.1*x_bed)-0.15*x_bed
+
 print("Generating frames...")
 for i in tqdm(range(h.shape[1]-1)):
     h_above_water = h[-1,i]
