@@ -1,5 +1,5 @@
 import numpy as np
-from solvers.solvers import numerical_fv_implicit
+from solvers.solvers import numerical_fv_implicit_general_b
 import matplotlib.pyplot as plt
 import os
 
@@ -20,7 +20,6 @@ g_prime = g*(rho_w-rho)/rho_w
 alpha = 0.5*np.sqrt(g_prime/g) # alpha required for A=1
 print(alpha)
 
-A = 2*alpha*np.sqrt(g/g_prime)
 B = (6*nu*q_0/g)**(1/3)
 C = (g/g_prime)**(1/6)
 eps = 2*alpha*(g_prime/g)**(0.5)*rho_w/rho
@@ -33,7 +32,10 @@ print("Computing steady state plot...")
 folder = "figures/"
 os.makedirs(folder, exist_ok=True)
 
-x, h, _, _ = numerical_fv_implicit(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, rho, alpha, a, L, sheet_accumulation=False)
+x_bed = np.linspace(0,20, num=2000)
+b_bed = x_bed
+
+x, h, _, _ = numerical_fv_implicit_general_b(h_0, x_bed, b_bed, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, rho, a, L, sheet_accumulation=False)
 
 # Non-dimensionalise x and h:
 x_pred = x[:,-1]/(2*B*C**4)

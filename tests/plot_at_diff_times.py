@@ -26,13 +26,11 @@ domain_width = 6
 
 q_0 = a*L
 g_prime = g*(rho_w-rho)/rho_w
-A = 2*alpha*np.sqrt(g/g_prime)
 B = (6*nu*q_0/g)**(1/3)
 C = (g/g_prime)**(1/6)
-eps = 2*alpha*(g_prime/g)**(0.5)*rho_w/rho
 D = 2*B*C**4/L
 
-print(f"A: {A}, D: {D}, ε: {eps}")
+print(f"D: {D}")
 
 print(f"scaled final time: {t_final*(a*L/(2*B**2*C**5))}")
 
@@ -64,7 +62,7 @@ def sheet_and_shelf_coords(x, h, x_shelf, H_shelf):
     return np.concatenate(x_coords, axis=0), np.concatenate(h_coords, axis=0)
 
 # initial state:
-h_0 = 0.7*(1-np.linspace(0,1,num=N)+0.002+0.1)
+h_0 = 0.7*(1-0.9*np.linspace(0,1,num=N))
 
 x_bed = np.linspace(0, 20, num=2000)
 #b_bed = 1.3*x_bed
