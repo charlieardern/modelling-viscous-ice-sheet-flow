@@ -50,7 +50,7 @@ microstep_list = [10, 14, 20, 40, 50, 100, 500, 1000]
 fine_microsteps = 2000
 print(f"Fine grained solution timestep: {(a*L/(2*B**2*C**5))*t_final/(num_steps*fine_microsteps)}")
 rmse_list = []
-N = 1000
+N = 1500
 h_0 = 1-np.linspace(0,1,num=N)+0.002+0.1
 
 if compute_fine_time:
