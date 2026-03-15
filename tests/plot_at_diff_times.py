@@ -16,13 +16,13 @@ alpha = 0.18
 nu = 80
 num_steps = 100
 num_microsteps = 500
-t_final = 320
+t_final = 350
 rho_w = 1000
 rho = 917
 g = 9.81
 a = 0.025
 L = 150
-domain_width = 6
+domain_width = 8
 
 q_0 = a*L
 g_prime = g*(rho_w-rho)/rho_w
@@ -77,7 +77,7 @@ h = h/(B*C)
 x_shelf = x_shelf/(2*B*C**4)
 H_shelf = H_shelf/(B*C)
 
-fig, ax = plt.subplots(constrained_layout=True, figsize=(10,5), dpi=400)
+fig, ax = plt.subplots(constrained_layout=True, figsize=(8,2.9), dpi=400)
 ax.set_title("Time evolution of ice sheet and shelf", fontname = "Latin Modern Roman", fontsize=16)
 #plt.axis('equal')
 ax.set_aspect('equal', adjustable='box')
@@ -90,8 +90,8 @@ ax.plot(x_bed, -b_bed, c='black', label='bedrock')
 #ax.plot(x_bed, -b_bed_test, c='black', label='bedrock_test')
 ax.plot([0,domain_width], [0,0], c="blue", alpha=0.2, label='water line')
 
-frames_to_plot = [0, 10, 25, 58, 99]
-alphas = [0.8, 0.8, 0.4, 0.8, 0.8]
+frames_to_plot = [0, 10, 22, 58, 99]
+alphas = [0.8, 0.9, 0.5, 0.8, 0.8]
 #alphas = np.linspace(0.8,0.8, num=len(frames_to_plot))
 
 

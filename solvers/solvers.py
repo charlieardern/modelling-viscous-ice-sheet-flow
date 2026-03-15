@@ -275,7 +275,6 @@ def numerical_fv_implicit(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu,
     N = h_0.shape[0]
     g_prime = g*(rho_w-rho)/rho_w
     A = 2*alpha*np.sqrt(g/g_prime)
-    print(f"A = {A}")
     B = (6*nu*q_0/g)**(1/3)
     C = (g/g_prime)**(1/6)
     eps = 2*alpha*(g_prime/g)**(0.5)*rho_w/rho

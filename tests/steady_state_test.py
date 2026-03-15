@@ -49,7 +49,7 @@ plt.rcParams["mathtext.rm"] = "Latin Modern Roman"
 plt.rcParams["mathtext.it"] = "Latin Modern Roman:italic"
 plt.rcParams["mathtext.bf"] = "Latin Modern Roman:bold"
 
-fig, ax = plt.subplots(constrained_layout=True, figsize=(6,5), dpi=300)
+fig, ax = plt.subplots(constrained_layout=True, figsize=(6,3.5), dpi=400)
 
 
 for i in range(len(times_to_plot)):
