@@ -29,6 +29,8 @@ B = (6*nu*q_0/g)**(1/3)
 C = (g/g_prime)**(1/6)
 eps = 2*alpha*(g_prime/g)**(0.5)*rho_w/rho
 
+print(f"ε = {eps} | A = {A} | => x_G(∞) = {1/(eps+A)}")
+
 # initial state:
 h_0 = 1-np.linspace(0,1,num=N)+0.002+0.1
 

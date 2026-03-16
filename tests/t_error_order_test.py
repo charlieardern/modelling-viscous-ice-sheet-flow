@@ -17,8 +17,8 @@ def quadratic(x, a, b, c):
 def linear(x, a, b):
     return a*x + b
 
-compute_fine_time = True
-compute_rmse = True
+compute_fine_time = False
+compute_rmse = False
 
 x_G_0 = 0.3
 nu=800
@@ -46,7 +46,7 @@ folder = "figures/"
 os.makedirs(folder, exist_ok=True)
 
 # Run test for delta_t order -------------------------------------------
-microstep_list = [10, 14, 20, 40, 50, 100, 500, 1000]
+microstep_list = [10, 12, 14, 20, 30, 40, 50, 65, 80, 100]
 fine_microsteps = 2000
 print(f"Fine grained solution timestep: {(a*L/(2*B**2*C**5))*t_final/(num_steps*fine_microsteps)}")
 rmse_list = []
@@ -75,44 +75,41 @@ if compute_rmse:
         
         rmse_list.append(np.sqrt(np.mean((h_pred-h_fine_i)**2)))
         print(f"rmse: {rmse_list[i]}")
-    np.save("saved_objects/remse_t.npy", np.array(rmse_list))
+    np.save("saved_objects/rmse_t.npy", np.array(rmse_list))
 else:
     rmse_list = np.load("saved_objects/rmse_t.npy")
 
 dt_scaled_values = (a*L/(2*B**2*C**5))*t_final/(num_steps*np.array(microstep_list))
-plt.figure(figsize=(8,5), dpi=300)
-plt.scatter(dt_scaled_values, rmse_list)
 
-popt, pcov = curve_fit(quadratic, dt_scaled_values, rmse_list)
-plt.plot(dt_scaled_values, quadratic(dt_scaled_values,*popt))
+fig, ax = plt.subplots(constrained_layout=True, figsize=(6,4), dpi=300)
+
+ax.scatter(dt_scaled_values, rmse_list, c="black")
+
+popt, pcov = curve_fit(linear, dt_scaled_values, rmse_list)
+ax.plot(dt_scaled_values, linear(dt_scaled_values,*popt), c="violet", label="Linear fit")
 
 #plt.plot(np.log(dt_scaled_values), np.log(rmse_list))
-plt.title("RMSE to fine-grained solution", fontname="Latin Modern Roman", fontsize=16)
-plt.xlabel(r"$\Delta t$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
-plt.ylabel(r"$\text{RMSE}_h$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
+ax.set_title("RMSE against fine-grained solution", fontname="Latin Modern Roman", fontsize=16)
+ax.set_xlabel(r"$\Delta t$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
+ax.set_ylabel(r"$\text{RMSE}_h$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
+plt.legend()
 plt.savefig(folder + "rmse_vs_dt.png")
 plt.close()
-
-print(f"Temporal quadratic weight: {popt[0]} +- {np.sqrt(pcov[0,0])}")
-print(f"Temporal linear weight: {popt[1]} +- {np.sqrt(pcov[1,1])}")
 
 # Log plots
 
 log_t = np.log(dt_scaled_values)
 log_rmse = np.log(rmse_list)
 
-print(f"log(t): {log_t}")
-print(f"log(rmse): {log_rmse}")
-
 popt, pcov = curve_fit(linear, log_t, log_rmse)
 
-plt.figure(figsize=(8,5), dpi=300)
+fig, ax = plt.subplots(constrained_layout=True, figsize=(6,4), dpi=300)
 
-plt.scatter(log_t, log_rmse)
-plt.plot(log_t, linear(log_t, *popt), label=f"m = {popt[0]}")
-plt.title("RMSE to fine-grained solution", fontname="Latin Modern Roman", fontsize=16)
-plt.xlabel(r"$\log(\Delta t)$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
-plt.ylabel(r"$\log(\text{RMSE}_h)$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
+ax.scatter(log_t, log_rmse, c="black")
+ax.plot(log_t, linear(log_t, *popt), label=f"Linear fit with \nm = {popt[0]:.2f}", c="violet")
+ax.set_title("RMSE against fine-grained solution", fontname="Latin Modern Roman", fontsize=16)
+ax.set_xlabel(r"$\log(\Delta t)$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
+ax.set_ylabel(r"$\log(\text{RMSE}_h)$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
 plt.legend()
 plt.savefig(folder + "log_rmse_vs_dt.png")
 plt.close()

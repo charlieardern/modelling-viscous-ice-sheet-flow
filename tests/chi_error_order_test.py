@@ -47,10 +47,13 @@ os.makedirs(folder, exist_ok=True)
 
 # Run test for delta_chi order -------------------------------------------
 num_microsteps = 3000
+
+print(f"timestep used: {(a*L/(2*B**2*C**5))*t_final/(num_steps*num_microsteps)}")
+
 #N_values = np.round(1/np.linspace(1/4, 1/100, num=30))
 N_values = [3, 4, 5, 6, 7, 8, 10, 20, 40, 60, 80]
 #N_values = np.round(np.linspace(5,100, num=30))
-N_fine = 200
+N_fine = 700
 j = np.linspace(0,N_fine-1, num=N_fine)
 chi_fine = (j+0.5)/N_fine
 
@@ -82,13 +85,16 @@ if compute_rmse:
 else:
     rmse_list = np.load("saved_objects/rmse_chi.npy")
 
-plt.figure(figsize=(8,5), dpi=300)
-plt.scatter(1/np.array(N_values), rmse_list)
-plt.title("RMSE to fine-grained solution", fontname="Latin Modern Roman", fontsize=16)
-plt.xlabel(r"$\Delta \chi$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
-plt.ylabel(r"RMSE_$h$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
+fig, ax = plt.subplots(constrained_layout=True, figsize=(6,4), dpi=300)
+
+ax.set_title("RMSE against fine-grained solution", fontname="Latin Modern Roman", fontsize=16)
+ax.set_xlabel(r"$\Delta \chi$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
+ax.set_ylabel(r"RMSE$_h$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
 popt, pcov = curve_fit(quadratic, 1/np.array(N_values), rmse_list)
-plt.plot(1/np.array(N_values), quadratic(1/np.array(N_values), *popt))
+#ax.plot(1/np.array(N_values), quadratic(1/np.array(N_values), *popt), c="red")
+ax.plot(np.linspace(1/N_values[-1],1/N_values[0], num=200), quadratic(np.linspace(1/N_values[-1],1/N_values[0], num=200), *popt), c="red", label="Quadratic fit")
+ax.scatter(1/np.array(N_values), rmse_list, c="black")
+ax.legend()
 
 plt.savefig(folder + "rmse_vs_dchi.png")
 plt.close()
@@ -103,13 +109,13 @@ log_rmse = np.log(rmse_list)
 
 popt, pcov = curve_fit(linear, log_chi, log_rmse)
 
+fig, ax = plt.subplots(constrained_layout=True, figsize=(6,4), dpi=300)
 
-plt.figure(figsize=(8,5), dpi=300)
-plt.scatter(log_chi, log_rmse)
-plt.plot(log_chi, linear(log_chi, *popt), label=f"m = {popt[0]}")
-plt.title("RMSE to fine-grained solution", fontname="Latin Modern Roman", fontsize=16)
-plt.xlabel(r"$\log(\Delta \chi$) (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
-plt.ylabel(r"$\log(\text{RMSE}_h)$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
+ax.plot(log_chi, linear(log_chi, *popt), label=f"Linear fit with \nm = {popt[0]:.2f}", c="red")
+ax.scatter(log_chi, log_rmse, c="black")
+ax.set_title("RMSE against fine-grained solution", fontname="Latin Modern Roman", fontsize=16)
+ax.set_xlabel(r"$\log(\Delta \chi$) (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
+ax.set_ylabel(r"$\log(\text{RMSE}_h)$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
 plt.legend()
 plt.savefig(folder + "log_rmse_vs_dchi.png")
 plt.close()

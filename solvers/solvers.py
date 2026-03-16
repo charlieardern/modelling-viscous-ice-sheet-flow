@@ -193,6 +193,13 @@ def numerical_fv(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, r
 def numerical_fv_implicit(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, rho, alpha, a, L, test_mode=False, hide_output=False, sheet_accumulation=True):
     """Takes initial state tensor of shape (N,) as input and propagates"""
     
+    def exit_solver(h_list, x_G_list):
+        h_tnsr = B*C*np.concatenate(h_list, axis=1)
+        x_G_tnsr = 2*B*C**4*np.array(x_G_list).reshape(1,-1)
+        chi = np.linspace(0.5/N, 1-0.5/N, num=N).reshape(-1,1)
+        x_tnsr = chi*x_G_tnsr
+        return x_tnsr, h_tnsr, False, x_G_tnsr
+
     def K_plus(h, x_G):
         h_plus = h[1:]
         h_i = h[:-1]
@@ -380,7 +387,7 @@ def numerical_fv_implicit(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu,
             try:
                 h = solve_banded((1,1), ab, h+const_term+(adv+D*int(sheet_accumulation))*delta_t)
             except ValueError:
-                return np.nan, np.nan, False, np.nan
+                return exit_solver(h_list, x_G_list)
             
             x_G = x_G + dx_G_dt*delta_t
             x_G_full_list.append(x_G)
@@ -395,7 +402,7 @@ def numerical_fv_implicit(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu,
                 diverged = True
                 if not hide_output:
                     print("Solution has diverged.")
-                return np.nan, np.nan, False, np.nan
+                return exit_solver(h_list, x_G_list)
 
         h_list.append(h.reshape(-1,1))
         x_G_list.append(x_G)
@@ -428,6 +435,12 @@ def numerical_fv_implicit(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu,
 
 def numerical_fv_implicit_general_b(h_0, x, b, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, rho, a, L, test_mode=False, hide_output=False, sheet_accumulation=True):
     """Takes initial state tensor of shape (N,) as input and propagates"""
+    def exit_solver(h_list, x_G_list):
+        h_tnsr = B*C*np.concatenate(h_list, axis=1)
+        x_G_tnsr = 2*B*C**4*np.array(x_G_list).reshape(1,-1)
+        chi = np.linspace(0.5/N, 1-0.5/N, num=N).reshape(-1,1)
+        x_tnsr = chi*x_G_tnsr
+        return x_tnsr, h_tnsr, False, x_G_tnsr
     
     def K_plus(h, b_i_plus):
         h_plus = h[1:]
@@ -593,22 +606,14 @@ def numerical_fv_implicit_general_b(h_0, x, b, num_microsteps, num_steps, t_fina
             upper = np.diag(m_pprime) # shape (N-1, N-1)
             upper[0,0] = -C_n*k_plus[0]
             upper = np.pad(upper, ((0, 1), (1, 0)), mode='constant') # shape (N, N)
-            
-            # print(f"lower shape: {lower.shape}")
-            # print(f"diagonal shape: {diagonal.shape}")
-            # print(f"upper shape: {upper.shape}")
 
             M = lower + diagonal + upper
-
-            #print(M-M.T)
 
             const_term = np.zeros(N)
             const_term[0] = C_n*x_G/N
             const_term[-1] = 8*C_n*B_n*h_G
 
             adv = advective_term(h, x_G, h_G, dx_G_dt)
-
-            #h = np.linalg.solve(M, h+const_term+(adv+D*int(sheet_accumulation))*delta_t)
 
             # faster solve:
             up = np.diag(M, k=1)
@@ -621,7 +626,7 @@ def numerical_fv_implicit_general_b(h_0, x, b, num_microsteps, num_steps, t_fina
             try:
                 h = solve_banded((1,1), ab, h+const_term+(adv+D*int(sheet_accumulation))*delta_t)
             except ValueError:
-                return np.nan, np.nan, False, np.nan
+                return exit_solver(h_list, x_G_list)
             
             x_G = x_G + dx_G_dt*delta_t
             x_G_full_list.append(x_G)
@@ -636,7 +641,7 @@ def numerical_fv_implicit_general_b(h_0, x, b, num_microsteps, num_steps, t_fina
                 diverged = True
                 if not hide_output:
                     print("Solution has diverged.")
-                return np.nan, np.nan, False, np.nan
+                return exit_solver(h_list, x_G_list)
 
         h_list.append(h.reshape(-1,1))
         x_G_list.append(x_G)
