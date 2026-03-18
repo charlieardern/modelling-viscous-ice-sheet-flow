@@ -97,6 +97,7 @@ class IceSheetSolver():
         chi_plus = (j+1)/self.N
         chi_minus = j/self.N
         chi = (j+0.5)/self.N
+        self.chi = chi
         self.delta_t = self.t_final/(self.num_steps*self.num_microsteps)
         self.delta_chi = 1/self.N
 
