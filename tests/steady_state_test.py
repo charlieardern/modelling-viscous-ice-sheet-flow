@@ -25,7 +25,7 @@ C = (g/g_prime)**(1/6)
 eps = 2*alpha*(g_prime/g)**(0.5)*rho_w/rho
 
 # initial state:
-h_0 = 0.7*(1-np.linspace(0,1,num=N)+0.002+0.1)
+h_0 = 0.7*(1-0.9*np.linspace(0,1,num=N))
 
 print("Computing steady state plot...")
 
@@ -50,7 +50,6 @@ plt.rcParams["mathtext.it"] = "Latin Modern Roman:italic"
 plt.rcParams["mathtext.bf"] = "Latin Modern Roman:bold"
 
 fig, ax = plt.subplots(constrained_layout=True, figsize=(6,3.5), dpi=400)
-
 
 for i in range(len(times_to_plot)):
     label = f"t = {((a*L/(2*B**2*C**5))*times_to_plot[i]*t_final/num_steps):.1f}"

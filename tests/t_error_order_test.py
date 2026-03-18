@@ -17,10 +17,10 @@ def quadratic(x, a, b, c):
 def linear(x, a, b):
     return a*x + b
 
-compute_fine_time = False
-compute_rmse = False
+compute_fine_time = True
+compute_rmse = True
 
-x_G_0 = 0.3
+x_G_0 = 0.5
 nu=800
 num_steps = 100
 t_final = 800
@@ -39,6 +39,10 @@ A = 2*alpha*np.sqrt(g/g_prime)
 B = (6*nu*q_0/g)**(1/3)
 C = (g/g_prime)**(1/6)
 eps = 2*alpha*(g_prime/g)**(0.5)*rho_w/rho
+D = 2*B*C**4/L
+
+print(f"A: {A}")
+print(f"D: {D}")
 
 print("Computing error order tests...")
 
@@ -51,7 +55,8 @@ fine_microsteps = 2000
 print(f"Fine grained solution timestep: {(a*L/(2*B**2*C**5))*t_final/(num_steps*fine_microsteps)}")
 rmse_list = []
 N = 1500
-h_0 = 1-np.linspace(0,1,num=N)+0.002+0.1
+#h_0 = 1-np.linspace(0,1,num=N)+0.002+0.1
+h_0 = 0.7*(1-0.9*np.linspace(0,1,num=N))
 
 if compute_fine_time:
     x_fine, h_fine, _, _ = numerical_fv_implicit(h_0, fine_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, rho, alpha, a, L, test_mode=True)
@@ -88,7 +93,6 @@ ax.scatter(dt_scaled_values, rmse_list, c="black")
 popt, pcov = curve_fit(linear, dt_scaled_values, rmse_list)
 ax.plot(dt_scaled_values, linear(dt_scaled_values,*popt), c="violet", label="Linear fit")
 
-#plt.plot(np.log(dt_scaled_values), np.log(rmse_list))
 ax.set_title("RMSE against fine-grained solution", fontname="Latin Modern Roman", fontsize=16)
 ax.set_xlabel(r"$\Delta t$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
 ax.set_ylabel(r"$\text{RMSE}_h$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
@@ -107,9 +111,9 @@ fig, ax = plt.subplots(constrained_layout=True, figsize=(6,4), dpi=300)
 
 ax.scatter(log_t, log_rmse, c="black")
 ax.plot(log_t, linear(log_t, *popt), label=f"Linear fit with \nm = {popt[0]:.2f}", c="violet")
-ax.set_title("RMSE against fine-grained solution", fontname="Latin Modern Roman", fontsize=16)
-ax.set_xlabel(r"$\log(\Delta t)$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
-ax.set_ylabel(r"$\log(\text{RMSE}_h)$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
+ax.set_title("RMSE against fine-grained solution - log plot", fontname="Latin Modern Roman", fontsize=16)
+ax.set_xlabel(r"$\log\Delta t$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
+ax.set_ylabel(r"$\log\text{RMSE}_h$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
 plt.legend()
 plt.savefig(folder + "log_rmse_vs_dt.png")
 plt.close()

@@ -32,7 +32,7 @@ eps = 2*alpha*(g_prime/g)**(0.5)*rho_w/rho
 print(f"ε = {eps} | A = {A} | => x_G(∞) = {1/(eps+A)}")
 
 # initial state:
-h_0 = 1-np.linspace(0,1,num=N)+0.002+0.1
+h_0 = 0.7*(1-0.9*np.linspace(0,1,num=N))
 
 print("Computing x_G plot...")
 
