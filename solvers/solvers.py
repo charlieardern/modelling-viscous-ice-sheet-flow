@@ -229,7 +229,7 @@ class IceSheetSolver():
             self.x_shelf_tnsr = None
             self.H_shelf_tnsr = None
         
-        converge = not np.isnan(self.h_tnsr).any()
+        self.converge = not np.isnan(self.h_tnsr).any()
         if not hide_output:
-            print(f"Converged: {converge}")
+            print(f"Converged: {self.converge}")
         
