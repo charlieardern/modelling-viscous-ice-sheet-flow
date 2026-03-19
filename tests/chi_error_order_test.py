@@ -1,5 +1,5 @@
 import numpy as np
-from solvers.solvers import numerical_fv_implicit
+from solvers.solvers import IceSheetSolver
 import matplotlib.pyplot as plt
 import os
 from tqdm.auto import tqdm
@@ -11,129 +11,125 @@ plt.rcParams["mathtext.rm"] = "Latin Modern Roman"
 plt.rcParams["mathtext.it"] = "Latin Modern Roman:italic"
 plt.rcParams["mathtext.bf"] = "Latin Modern Roman:bold"
 
+print("Computing chi error order test...")
+
 def quadratic(x, a, b, c):
     return a*x**2 + b*x + c
 
 def linear(x, a, b):
     return a*x + b
 
-compute_fine_space = False
+compute_fine_space = True
 compute_rmse = True
 
-#x_G_0 = 0.3
+# System setup --------------------------------------------
+
 x_G_0 = 0.5
 nu = 80
-num_steps = 100
-#t_final = 100
-t_final = 95.49087489292927
-rho_w = 1000
-rho = 917
-g = 9.81
-#a = 0.025
-a = 0.025342908749999987
-L = 150
-
-q_0 = a*L
-g_prime = g*(rho_w-rho)/rho_w
-#alpha = 0.24
-alpha = 0.24488262494509486
-
-A = 2*alpha*np.sqrt(g/g_prime)
-B = (6*nu*a*L/g)**(1/3)
-C = (g/g_prime)**(1/6)
-eps = 2*alpha*(g_prime/g)**(0.5)*rho_w/rho
-D = 2*B*C**4/L
-
-print(f"A: {A}")
-print(f"D: {D}")
-
-print(f"t_final should be: {0.7/(a*L/(2*B**2*C**5))}")
-print(f"alpha needs to be: {1.7/(2*np.sqrt(g/g_prime))}")
-print(f"a needs to be: {(0.4*L/(2*C**4))**3*(g/(6*nu*L))}")
-
-
-print("Computing error order tests...")
-
-
-folder = "figures/"
-os.makedirs(folder, exist_ok=True)
-
-# Run test for delta_chi order -------------------------------------------
+t_final = 0.8
 num_microsteps = 3000
+L = 150
+A = 2
+D = 0.4
 
-print(f"timestep used: {(a*L/(2*B**2*C**5))*t_final/(num_steps*num_microsteps)}")
-print(f"final time: {(a*L/(2*B**2*C**5))*t_final}")
+x_bed = np.linspace(0,20, num=2000)
+b_bed = A*x_bed
 
-#N_values = np.round(1/np.linspace(1/4, 1/100, num=30))
-N_values = [3, 4, 5, 6, 7, 8, 10, 20, 40, 80]
-#N_values = np.round(np.linspace(5,100, num=30))
+# Compute fine space --------------------------------------
+
 N_fine = 700
-j = np.linspace(0,N_fine-1, num=N_fine)
-chi_fine = (j+0.5)/N_fine
+h_0 = 0.7*(1-0.9*np.linspace(0,1,num=N_fine))
+fine_system = IceSheetSolver(x_bed, b_bed, x_G_0, h_0, D, nu, L, num_microsteps, t_final)
 
 if compute_fine_space:
-    #h_0 = 1-np.linspace(0,1,num=N_fine)+0.002+0.1
-    h_0 = 0.7*(1-0.9*np.linspace(0,1,num=N_fine))
-    _, h_fine, _, _ = numerical_fv_implicit(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, rho, alpha, a, L, test_mode=True)
-    h_fine = h_fine[:,-1]/(B*C)
+    fine_system.compute_solution(compute_shelf=False)
+    h_fine = fine_system.h_tnsr[:,-1]
+    x_G_fine = fine_system.x_G_tnsr[:,-1]
     os.makedirs("saved_objects/", exist_ok=True)
-    np.save("saved_objects/fine_solution.npy", h_fine)
+    np.save("saved_objects/fine_solution_chi.npy", h_fine)
+    np.save("saved_objects/fine_solution_chi_x_G.npy", x_G_fine)
 else:
-    h_fine = np.load("saved_objects/fine_solution.npy")
+    h_fine = np.load("saved_objects/fine_solution_chi.npy")
+    x_G_fine = np.load("saved_objects/fine_solution_chi_x_G.npy")
 
+# Run tests -------------------------------------------
+
+N_values = np.array([3, 4, 5, 6, 7, 8, 10, 20, 40, 80])
 rmse_list = []
+x_G_rmse_list = []
 
 if compute_rmse:
     for i in tqdm(range(len(N_values))):
-        N = int(N_values[i])
-        j = np.linspace(0,N-1, num=N)
-        chi_new = (j+0.5)/N
+        h_0 = 0.7*(1-0.9*np.linspace(0,1,num=N_values[i]))
+        system_i = IceSheetSolver(x_bed, b_bed, x_G_0, h_0, D, nu, L, num_microsteps, t_final)
+        system_i.compute_solution(compute_shelf=False)
 
-        #h_0 = 1-np.linspace(0,1,num=N)+0.002+0.1
-        h_0 = 0.7*(1-0.9*np.linspace(0,1,num=N))
-        x, h, _, _ = numerical_fv_implicit(h_0, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, rho, alpha, a, L, test_mode=True)
-        h_pred = h[:,-1]/(B*C)
-        h_fine_i = np.interp(chi_new, chi_fine, h_fine)
+        h_i = system_i.h_tnsr[:,-1]
+        h_fine_i = np.interp(system_i.chi, fine_system.chi, h_fine)
+        rmse_list.append(np.sqrt(np.mean((h_i-h_fine_i)**2)))
 
-        rmse_list.append(np.sqrt(np.mean((h_pred-h_fine_i)**2)))
-        print(f"rmse: {rmse_list[i]}")
-    np.save("saved_objects/rmse_chi.npy", rmse_list)
+        x_G_i = system_i.x_G_tnsr[:,-1]
+        x_G_rmse_list.append((np.sqrt(x_G_i-x_G_fine)**2))
+        print(f"rmse: {rmse_list[i]} | x_G_rmse: {x_G_rmse_list[i]}")
+        np.save("saved_objects/rmse_chi.npy", rmse_list)
+        np.save("saved_objects/rmse_chi_x_G.npy", x_G_rmse_list)
 else:
     rmse_list = np.load("saved_objects/rmse_chi.npy")
+    x_G_rmse_list = np.load("saved_objects/rmse_chi_x_G.npy")
+
+# Plot results --------------------------------------------
+
+os.makedirs("figures/", exist_ok=True)
+
+dchi_values = 1/N_values
+popt, pcov = curve_fit(quadratic, dchi_values, rmse_list)
 
 fig, ax = plt.subplots(constrained_layout=True, figsize=(6,4), dpi=300)
-
 ax.set_title("RMSE against fine-grained solution", fontname="Latin Modern Roman", fontsize=16)
 ax.set_xlabel(r"$\Delta \chi$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
 ax.set_ylabel(r"RMSE$_h$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
-popt, pcov = curve_fit(quadratic, 1/np.array(N_values), rmse_list)
-ax.plot(np.linspace(1/N_values[-1],1/N_values[0], num=200), quadratic(np.linspace(1/N_values[-1],1/N_values[0], num=200), *popt), c="red", label="Quadratic fit")
-ax.scatter(1/np.array(N_values), rmse_list, c="black")
+
+ax.plot(np.linspace(dchi_values[-1],dchi_values[0], num=200), quadratic(np.linspace(dchi_values[-1],dchi_values[0], num=200), *popt), c="red", label="Quadratic fit")
+ax.scatter(dchi_values, rmse_list, c="black")
 ax.legend()
 
-plt.savefig(folder + "rmse_vs_dchi.png")
+plt.savefig("figures/" + "rmse_vs_dchi.png")
 plt.close()
 
-print(f"Spatial quadratic weight: {popt[0]} +- {np.sqrt(pcov[0,0])}")
-print(f"Spatial linear weight: {popt[1]} +- {np.sqrt(pcov[1,1])}")
+# Log plots -----------------------------------------------
 
-# Log plots
-
-log_chi = np.log(1/np.array(N_values))
+log_chi = np.log(dchi_values)
 log_rmse = np.log(rmse_list)
-
 popt, pcov = curve_fit(linear, log_chi, log_rmse)
 
 fig, ax = plt.subplots(constrained_layout=True, figsize=(6,4), dpi=300)
-
-ax.plot(log_chi, linear(log_chi, *popt), label=f"Linear fit with \nm = {popt[0]:.2f}", c="red")
-ax.scatter(log_chi, log_rmse, c="black")
 ax.set_title("RMSE against fine-grained solution - log plot", fontname="Latin Modern Roman", fontsize=16)
 ax.set_xlabel(r"$\log\Delta \chi$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
 ax.set_ylabel(r"$\log\text{RMSE}_h$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
+
+ax.plot(log_chi, linear(log_chi, *popt), label=f"Linear fit with \nm = {popt[0]:.2f}", c="red")
+ax.scatter(log_chi, log_rmse, c="black")
 plt.legend()
-plt.savefig(folder + "log_rmse_vs_dchi.png")
+
+plt.savefig("figures/" + "log_rmse_vs_dchi.png")
 plt.close()
 
+# x_G log plots -----------------------------------------------
+
+# log_chi = np.log(dchi_values)
+# log_rmse_x_G = np.log(x_G_rmse_list)
+# popt, pcov = curve_fit(linear, log_chi, log_rmse_x_G)
+
+# fig, ax = plt.subplots(constrained_layout=True, figsize=(6,4), dpi=300)
+# ax.set_title(r"$x_G$ RMSE against fine-grained solution - log plot", fontname="Latin Modern Roman", fontsize=16)
+# ax.set_xlabel(r"$\log\Delta \chi$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
+# ax.set_ylabel(r"$\log\text{RMSE}_{x_G}$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
+
+# ax.plot(log_chi, linear(log_chi, *popt), label=f"Linear fit with \nm = {popt[0]:.2f}", c="red")
+# ax.scatter(log_chi, log_rmse_x_G, c="black")
+# plt.legend()
+
+# plt.savefig("figures/" + "log_rmse_vs_dchi_x_G.png")
+# plt.close()
 
 print("Complete.")

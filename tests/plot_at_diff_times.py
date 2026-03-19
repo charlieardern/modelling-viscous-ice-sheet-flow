@@ -1,8 +1,7 @@
 import numpy as np
-from solvers.solvers import numerical_fv_implicit_general_b
+from solvers.solvers import IceSheetSolver
 import os
 import matplotlib.pyplot as plt
-from tqdm.auto import tqdm
 
 plt.rcParams["font.family"] = "Latin Modern Roman"
 plt.rcParams["mathtext.fontset"] = "custom"
@@ -10,29 +9,16 @@ plt.rcParams["mathtext.rm"] = "Latin Modern Roman"
 plt.rcParams["mathtext.it"] = "Latin Modern Roman:italic"
 plt.rcParams["mathtext.bf"] = "Latin Modern Roman:bold"
 
+print("Producing plot at different times...")
+
 N = 100
 x_G_0 = 0.1
-alpha = 0.18
-nu = 80
-num_steps = 100
 num_microsteps = 500
-t_final = 350
-rho_w = 1000
-rho = 917
-g = 9.81
-a = 0.025
+D = 0.4
+t_final = 2.5
 L = 150
+nu = 80
 domain_width = 8
-
-q_0 = a*L
-g_prime = g*(rho_w-rho)/rho_w
-B = (6*nu*q_0/g)**(1/3)
-C = (g/g_prime)**(1/6)
-D = 2*B*C**4/L
-
-print(f"D: {D}")
-
-print(f"scaled final time: {t_final*(a*L/(2*B**2*C**5))}")
 
 def sheet_and_shelf_coords(x, h, x_shelf, H_shelf):
     x_coords = []
@@ -65,42 +51,31 @@ def sheet_and_shelf_coords(x, h, x_shelf, H_shelf):
 h_0 = 0.7*(1-0.9*np.linspace(0,1,num=N))
 
 x_bed = np.linspace(0, 20, num=2000)
-#b_bed = 1.3*x_bed
 b_bed = 0.2*np.sin(8*x_bed)+1.3*x_bed
 
-print("Producing plot at different times...")
-x, h, x_shelf, H_shelf = numerical_fv_implicit_general_b(h_0, x_bed, b_bed, num_microsteps, num_steps, t_final, x_G_0, g, nu, rho_w, rho, a, L)
-
-# Non-dimensionalise x and h:
-x = x/(2*B*C**4)
-h = h/(B*C)
-x_shelf = x_shelf/(2*B*C**4)
-H_shelf = H_shelf/(B*C)
+system = IceSheetSolver(x_bed, b_bed, x_G_0, h_0, D, nu, L, num_microsteps, t_final)
+system.compute_solution()
+x, h, x_shelf, H_shelf = system.x_tnsr, system.h_tnsr, system.x_shelf_tnsr, system.H_shelf_tnsr
 
 fig, ax = plt.subplots(constrained_layout=True, figsize=(8,2.9), dpi=400)
 ax.set_title("Time evolution of ice sheet and shelf", fontname = "Latin Modern Roman", fontsize=16)
-#plt.axis('equal')
 ax.set_aspect('equal', adjustable='box')
 ax.set_xlim(0, domain_width)
 ax.set_ylim(-1.1, 1.1)
 ax.set_xlabel(r"$x$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
 ax.set_ylabel(r"$z$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
-#ax.plot([0,domain_width],[0,-A*domain_width], c='black', label='bedrock')
 ax.plot(x_bed, -b_bed, c='black', label='bedrock')
-#ax.plot(x_bed, -b_bed_test, c='black', label='bedrock_test')
 ax.plot([0,domain_width], [0,0], c="blue", alpha=0.2, label='water line')
 
 frames_to_plot = [0, 10, 22, 58, 99]
 alphas = [0.8, 0.9, 0.5, 0.8, 0.8]
-#alphas = np.linspace(0.8,0.8, num=len(frames_to_plot))
-
 
 colours = ["red", "orange", "orange", "green", "blue"]
 
 for j in range(len(frames_to_plot)):
     i = frames_to_plot[j]
     h_above_water = h[-1,i]
-    label = f"t = {((a*L/(2*B**2*C**5))*i*t_final/num_steps):.1f}"
+    label = f"t = {(i*t_final/system.num_steps):.1f}"
     x_coords, h_coords = sheet_and_shelf_coords(x, h, x_shelf, H_shelf)
     ax.plot(x_coords, h_coords, alpha = alphas[j], label=label, c=colours[j])
 
