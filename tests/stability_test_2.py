@@ -14,7 +14,7 @@ plt.rcParams["mathtext.rm"] = "Latin Modern Roman"
 plt.rcParams["mathtext.it"] = "Latin Modern Roman:italic"
 plt.rcParams["mathtext.bf"] = "Latin Modern Roman:bold"
 
-compute_new = True
+compute_new = False
 
 x_G_0 = 0.3
 nu = 160
@@ -58,10 +58,10 @@ fig, ax = plt.subplots(constrained_layout=True, figsize=(4.5,4.5), dpi=400)
 ax.set_xlabel(r"$\Delta \chi$ (dimensionless)", fontname = "Latin Modern Roman", fontsize = 14)
 ax.set_ylabel(r"$\Delta t$ (dimensionless)", fontname = "Latin Modern Roman", fontsize = 14)
 ax.set_title("Solver stability boundary", fontname="Latin Modern Roman", fontsize = 16)
-ax.set_xlim(min(chisteps)-0.1*chi_range, max(chisteps)+0.1*chi_range)
-ax.set_ylim(min(timesteps)-0.1*t_range, max(timesteps)+0.1*t_range)
-ax.text(0.008, 0.01, "Unstable", fontname = "Latin Modern Roman", fontsize = 14)
-ax.text(0.022, 0.004, "Stable", fontname = "Latin Modern Roman", fontsize = 14)
+#ax.set_xlim(min(chisteps)-0.1*chi_range, max(chisteps))
+#ax.set_ylim(min(timesteps), max(timesteps)+0.1*t_range)
+ax.text(0.007, 0.014, "Unstable", fontname = "Latin Modern Roman", fontsize = 14)
+ax.text(0.02, 0.006, "Stable", fontname = "Latin Modern Roman", fontsize = 14)
 
 print("Calculating reference solution...")
 N_true = 100
@@ -105,7 +105,7 @@ if compute_new:
                 plt.plot(system_i.chi, h_i)
                 plt.savefig("test.png")
                 plt.close()
-                if converge_i and err < 0.01:
+                if converge_i and err < 0.05:
                     print(f"Converged with error {err}")
                     boundary_dt.append(delta_t)
                     boundary_dchi.append(1/N_i)
@@ -116,8 +116,8 @@ if compute_new:
     np.save("saved_objects/dt_stability.npy", np.array(boundary_dt))
     np.save("saved_objects/dchi_stability.npy", np.array(boundary_dchi))
 else:
-    boundary_dt = np.load("saved_objects/dt_stability.npy")
-    boundary_dchi = np.load("saved_objects/dchi_stability.npy")
+    boundary_dt = np.load("saved_objects/dt_stability.npy")[:-32]
+    boundary_dchi = np.load("saved_objects/dchi_stability.npy")[:-32]
     ax.scatter(boundary_dchi, boundary_dt, c="black", s=2)
     popt, pcov = curve_fit(linear, boundary_dchi, boundary_dt)
     ax.plot(boundary_dchi, linear(boundary_dchi, *popt), c='orange', label="Linear fit")
@@ -133,8 +133,8 @@ log_dt = np.log(boundary_dt)
 fig, ax = plt.subplots(constrained_layout=True, figsize=(4.5,4.5), dpi=400)
 ax.set_xlabel(r"$\log\Delta \chi$ (dimensionless)", fontname = "Latin Modern Roman", fontsize = 14)
 ax.set_ylabel(r"$\log\Delta t$ (dimensionless)", fontname = "Latin Modern Roman", fontsize = 14)
-ax.text(-5, -5, "Unstable", fontname = "Latin Modern Roman", fontsize = 14)
-ax.text(-4.25, -5.75, "Stable", fontname = "Latin Modern Roman", fontsize = 14)
+ax.text(-5, -4.5, "Unstable", fontname = "Latin Modern Roman", fontsize = 14)
+ax.text(-4.25, -5.3, "Stable", fontname = "Latin Modern Roman", fontsize = 14)
 ax.set_title("Solver stability boundary - log plot", fontname="Latin Modern Roman", fontsize = 16)
 ax.scatter(log_dchi, log_dt, s=2, c="black")
 popt, pcov = curve_fit(linear, log_dchi, log_dt)

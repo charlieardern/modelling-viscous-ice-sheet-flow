@@ -35,7 +35,7 @@ x, h = system.x_tnsr, system.h_tnsr
 times_to_plot = [3, 10, 25, 99]
 alphas = [0.3, 0.5, 0.75, 1]
 
-fig, ax = plt.subplots(constrained_layout=True, figsize=(6,3.5), dpi=400)
+fig, ax = plt.subplots(constrained_layout=True, figsize=(6,4), dpi=400)
 
 for i in range(len(times_to_plot)):
     label = f"t = {(times_to_plot[i]*t_final/system.num_steps):.1f}"

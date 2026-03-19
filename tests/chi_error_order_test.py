@@ -41,6 +41,8 @@ N_fine = 700
 h_0 = 0.7*(1-0.9*np.linspace(0,1,num=N_fine))
 fine_system = IceSheetSolver(x_bed, b_bed, x_G_0, h_0, D, nu, L, num_microsteps, t_final)
 
+print(f"Fine system grid spacing: {1/N_fine} | Time step = {t_final/(fine_system.num_steps*num_microsteps)}")
+
 if compute_fine_space:
     fine_system.compute_solution(compute_shelf=False)
     h_fine = fine_system.h_tnsr[:,-1]

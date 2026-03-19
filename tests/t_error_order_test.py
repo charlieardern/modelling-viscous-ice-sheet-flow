@@ -19,7 +19,7 @@ def quadratic(x, a, b, c):
 def linear(x, a, b):
     return a*x + b
 
-compute_fine_time = False
+compute_fine_time = True
 compute_rmse = True
 
 # System setup --------------------------------------------
@@ -30,7 +30,7 @@ t_final = 0.2
 L = 150
 A = 0.8
 D = 0.4
-N = 800
+N = 1500
 h_0 = 0.7*(1-0.9*np.linspace(0,1,num=N))
 
 x_bed = np.linspace(0,20, num=2000)
@@ -40,6 +40,8 @@ b_bed = A*x_bed
 
 fine_microsteps = 2000
 fine_system = IceSheetSolver(x_bed, b_bed, x_G_0, h_0, D, nu, L, fine_microsteps, t_final)
+print(f"Fine time step: {t_final/(fine_system.num_steps*fine_microsteps)} | Grid spacing: {1/N}")
+
 
 if compute_fine_time:
     fine_system.compute_solution(compute_shelf=False)

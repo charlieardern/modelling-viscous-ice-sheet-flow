@@ -36,7 +36,7 @@ x_G = system.x_G_tnsr
 timesteps = np.linspace(0, t_final, num=system.num_steps+1)
 x_G = x_G.reshape(-1)
 
-fig, ax = plt.subplots(constrained_layout=True, figsize=(6,3.5), dpi=300)
+fig, ax = plt.subplots(constrained_layout=True, figsize=(6,4), dpi=300)
 ax.set_xlabel(r"$t$ (dimensionless)", fontname="Latin Modern Roman", fontsize=14)
 ax.set_ylabel(r"$x$ (dimensionless)", fontname="Latin Modern Roman", fontsize=14)
 ax.set_title("Time evolution of grounding line position", fontname="Latin Modern Roman", fontsize=16)

@@ -207,7 +207,7 @@ class IceSheetSolver():
                 q_G_list.append(-self.g/(3*self.nu)*H_G**3*((8*h_G+h[-2]-9*h[-1])*self.N/(3*x_G)))
                 t_G_list.append(i*self.num_microsteps*self.delta_t+(ii+1)*self.delta_t)
 
-                if np.isnan(np.array(h)).any() and not diverged:
+                if (np.isnan(np.array(h)).any() or (np.abs(np.array(h)) > 20).any()) and not diverged:
                     diverged = True
                     if not hide_output:
                         print("Solution has diverged.")
@@ -230,6 +230,8 @@ class IceSheetSolver():
             self.H_shelf_tnsr = None
         
         self.converge = not np.isnan(self.h_tnsr).any()
+        if diverged:
+            self.converge = False
         if not hide_output:
             print(f"Converged: {self.converge}")
         
