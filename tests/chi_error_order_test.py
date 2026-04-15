@@ -19,8 +19,8 @@ def quadratic(x, a, b, c):
 def linear(x, a, b):
     return a*x + b
 
-compute_fine_space = True
-compute_rmse = True
+compute_fine_space = False
+compute_rmse = False
 
 # System setup --------------------------------------------
 
@@ -86,14 +86,15 @@ os.makedirs("figures/", exist_ok=True)
 dchi_values = 1/N_values
 popt, pcov = curve_fit(quadratic, dchi_values, rmse_list)
 
-fig, ax = plt.subplots(constrained_layout=True, figsize=(6,4), dpi=300)
+fig, ax = plt.subplots(constrained_layout=True, figsize=(5.4,3.6), dpi=300)
 ax.set_title("RMSE against fine-grained solution", fontname="Latin Modern Roman", fontsize=16)
 ax.set_xlabel(r"$\Delta \chi$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
 ax.set_ylabel(r"RMSE$_h$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
 
 ax.plot(np.linspace(dchi_values[-1],dchi_values[0], num=200), quadratic(np.linspace(dchi_values[-1],dchi_values[0], num=200), *popt), c="red", label="Quadratic fit")
 ax.scatter(dchi_values, rmse_list, c="black")
-ax.legend()
+ax.legend(fontsize=11)
+ax.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True)
 
 plt.savefig("figures/" + "rmse_vs_dchi.png")
 plt.close()
@@ -104,34 +105,16 @@ log_chi = np.log(dchi_values)
 log_rmse = np.log(rmse_list)
 popt, pcov = curve_fit(linear, log_chi, log_rmse)
 
-fig, ax = plt.subplots(constrained_layout=True, figsize=(6,4), dpi=300)
+fig, ax = plt.subplots(constrained_layout=True, figsize=(5.4,3.6), dpi=300)
 ax.set_title("RMSE against fine-grained solution - log plot", fontname="Latin Modern Roman", fontsize=16)
 ax.set_xlabel(r"$\log\Delta \chi$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
 ax.set_ylabel(r"$\log\text{RMSE}_h$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
 
 ax.plot(log_chi, linear(log_chi, *popt), label=f"Linear fit with \nm = {popt[0]:.2f}", c="red")
 ax.scatter(log_chi, log_rmse, c="black")
-plt.legend()
+plt.legend(fontsize=11)
 
 plt.savefig("figures/" + "log_rmse_vs_dchi.png")
 plt.close()
-
-# x_G log plots -----------------------------------------------
-
-# log_chi = np.log(dchi_values)
-# log_rmse_x_G = np.log(x_G_rmse_list)
-# popt, pcov = curve_fit(linear, log_chi, log_rmse_x_G)
-
-# fig, ax = plt.subplots(constrained_layout=True, figsize=(6,4), dpi=300)
-# ax.set_title(r"$x_G$ RMSE against fine-grained solution - log plot", fontname="Latin Modern Roman", fontsize=16)
-# ax.set_xlabel(r"$\log\Delta \chi$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
-# ax.set_ylabel(r"$\log\text{RMSE}_{x_G}$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
-
-# ax.plot(log_chi, linear(log_chi, *popt), label=f"Linear fit with \nm = {popt[0]:.2f}", c="red")
-# ax.scatter(log_chi, log_rmse_x_G, c="black")
-# plt.legend()
-
-# plt.savefig("figures/" + "log_rmse_vs_dchi_x_G.png")
-# plt.close()
 
 print("Complete.")

@@ -19,8 +19,8 @@ def quadratic(x, a, b, c):
 def linear(x, a, b):
     return a*x + b
 
-compute_fine_time = True
-compute_rmse = True
+compute_fine_time = False
+compute_rmse = False
 
 # System setup --------------------------------------------
 
@@ -84,14 +84,15 @@ else:
 dt_values = t_final/(fine_system.num_steps*microstep_list)
 popt, pcov = curve_fit(linear, dt_values, rmse_list)
 
-fig, ax = plt.subplots(constrained_layout=True, figsize=(6,4), dpi=300)
+fig, ax = plt.subplots(constrained_layout=True, figsize=(5.4,3.6), dpi=300)
 ax.set_title("RMSE against fine-grained solution", fontname="Latin Modern Roman", fontsize=16)
 ax.set_xlabel(r"$\Delta t$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
 ax.set_ylabel(r"$\text{RMSE}_h$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
 
 ax.scatter(dt_values, rmse_list, c="black")
 ax.plot(dt_values, linear(dt_values,*popt), c="violet", label="Linear fit")
-ax.legend()
+ax.legend(fontsize=12)
+ax.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True)
 
 plt.savefig("figures/" + "rmse_vs_dt.png")
 plt.close()
@@ -103,7 +104,7 @@ log_rmse = np.log(rmse_list)
 popt, pcov = curve_fit(linear, log_t, log_rmse)
 
 
-fig, ax = plt.subplots(constrained_layout=True, figsize=(6,4), dpi=300)
+fig, ax = plt.subplots(constrained_layout=True, figsize=(5.4,3.6), dpi=300)
 ax.set_title("RMSE against fine-grained solution - log plot", fontname="Latin Modern Roman", fontsize=16)
 ax.set_xlabel(r"$\log\Delta t$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
 ax.set_ylabel(r"$\log\text{RMSE}_h$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
@@ -111,7 +112,8 @@ ax.set_ylabel(r"$\log\text{RMSE}_h$ (dimensionless)", fontname = "Latin Modern R
 
 ax.scatter(log_t, log_rmse, c="black")
 ax.plot(log_t, linear(log_t, *popt), label=f"Linear fit with \nm = {popt[0]:.2f}", c="violet")
-ax.legend()
+ax.legend(fontsize=12)
+
 
 plt.savefig("figures/" + "log_rmse_vs_dt.png")
 plt.close()

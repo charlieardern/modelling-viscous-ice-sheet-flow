@@ -111,7 +111,8 @@ else:
     ax.scatter(boundary_dchi, boundary_dt, c="black", s=2)
     popt, pcov = curve_fit(linear, boundary_dchi, boundary_dt)
     ax.plot(boundary_dchi, linear(boundary_dchi, *popt), c='orange', label="Linear fit")
-    plt.legend()
+    plt.legend(fontsize=12)
+    ax.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True)
     plt.savefig(folder + "stability_plot.png")
     plt.close()
 
@@ -129,7 +130,7 @@ ax.set_title("Solver stability boundary - log plot", fontname="Latin Modern Roma
 ax.scatter(log_dchi, log_dt, s=2, c="black")
 popt, pcov = curve_fit(linear, log_dchi, log_dt)
 ax.plot(log_dchi, linear(log_dchi, *popt), label=f"Linear fit \nm={popt[0]:.2f}", c="orange")
-plt.legend()
+plt.legend(fontsize=12)
 plt.savefig(folder + "log_stability_plot.png")
 
 

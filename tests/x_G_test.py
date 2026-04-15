@@ -36,16 +36,16 @@ x_G = system.x_G_tnsr
 timesteps = np.linspace(0, t_final, num=system.num_steps+1)
 x_G = x_G.reshape(-1)
 
-fig, ax = plt.subplots(constrained_layout=True, figsize=(6,4), dpi=300)
+fig, ax = plt.subplots(constrained_layout=True, figsize=(5.4,3.6), dpi=300)
 ax.set_xlabel(r"$t$ (dimensionless)", fontname="Latin Modern Roman", fontsize=14)
-ax.set_ylabel(r"$x$ (dimensionless)", fontname="Latin Modern Roman", fontsize=14)
+ax.set_ylabel(r"$x_G$ (dimensionless)", fontname="Latin Modern Roman", fontsize=14)
 ax.set_title("Time evolution of grounding line position", fontname="Latin Modern Roman", fontsize=16)
 ax.plot(timesteps, x_G.reshape(-1), c="blue", label=r"$x_G(t)$")
 ax.set_ylim(np.min(x_G), np.max(x_G)+0.1*(np.max(x_G)-np.min(x_G)))
 ax.set_xlim(0, np.max(timesteps))
 x_G_steady = 1/(A+np.interp(x_G[-1], x_bed, b_bed)*system.rho_w*system.g_prime*A/(system.rho*system.g))
 ax.plot([timesteps[0], timesteps[-1]], [x_G_steady, x_G_steady], alpha=0.2, c="blue", linestyle="--", label="Analytical \nsteady state")
-plt.legend()
+plt.legend(fontsize=14)
 
 plt.savefig(folder + "x_G_plot.png")
 

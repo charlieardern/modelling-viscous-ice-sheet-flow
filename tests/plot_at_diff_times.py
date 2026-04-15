@@ -82,6 +82,6 @@ for j in range(len(frames_to_plot)):
 folder = "figures/"
 os.makedirs(folder, exist_ok=True)
 
-plt.legend()
+plt.legend(fontsize=12)
 plt.savefig(folder + "plot_at_diff_times.png")
 print("Complete.")
