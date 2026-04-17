@@ -54,7 +54,7 @@ boundary_cross = False
 boundary_dt = []
 boundary_dchi = []
 
-fig, ax = plt.subplots(constrained_layout=True, figsize=(4.5,4.5), dpi=400)
+fig, ax = plt.subplots(constrained_layout=True, figsize=(4.5,3), dpi=400)
 ax.set_xlabel(r"$\Delta \chi$ (dimensionless)", fontname = "Latin Modern Roman", fontsize = 14)
 ax.set_ylabel(r"$\Delta t$ (dimensionless)", fontname = "Latin Modern Roman", fontsize = 14)
 ax.set_title("Solver stability boundary", fontname="Latin Modern Roman", fontsize = 16)
@@ -121,10 +121,10 @@ else:
 log_dchi = np.log(boundary_dchi)
 log_dt = np.log(boundary_dt)
 
-fig, ax = plt.subplots(constrained_layout=True, figsize=(4.5,4.5), dpi=400)
+fig, ax = plt.subplots(constrained_layout=True, figsize=(4.5,3), dpi=400)
 ax.set_xlabel(r"$\log\Delta \chi$ (dimensionless)", fontname = "Latin Modern Roman", fontsize = 14)
 ax.set_ylabel(r"$\log\Delta t$ (dimensionless)", fontname = "Latin Modern Roman", fontsize = 14)
-ax.text(-5, -4.5, "Unstable", fontname = "Latin Modern Roman", fontsize = 14)
+ax.text(-5, -4.6, "Unstable", fontname = "Latin Modern Roman", fontsize = 14)
 ax.text(-4.25, -5.3, "Stable", fontname = "Latin Modern Roman", fontsize = 14)
 ax.set_title("Solver stability boundary - log plot", fontname="Latin Modern Roman", fontsize = 16)
 ax.scatter(log_dchi, log_dt, s=2, c="black")

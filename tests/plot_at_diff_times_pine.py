@@ -18,7 +18,7 @@ D = 0.4
 t_final = 2.5
 L = 150
 nu = 80
-domain_width = 9
+domain_width = 8
 
 def sheet_and_shelf_coords(x, h, x_shelf, H_shelf):
     x_coords = []
@@ -57,7 +57,7 @@ system = IceSheetSolver(x_bed, b_bed, x_G_0, h_0, D, nu, L, num_microsteps, t_fi
 system.compute_solution()
 x, h, x_shelf, H_shelf = system.x_tnsr, system.h_tnsr, system.x_shelf_tnsr, system.H_shelf_tnsr
 
-fig, ax = plt.subplots(constrained_layout=True, figsize=(9,2.9), dpi=400)
+fig, ax = plt.subplots(constrained_layout=True, figsize=(8,2.9), dpi=400)
 ax.set_title("Time evolution of ice sheet and shelf", fontname = "Latin Modern Roman", fontsize=16)
 ax.set_aspect('equal', adjustable='box')
 ax.set_xlim(0, domain_width)
