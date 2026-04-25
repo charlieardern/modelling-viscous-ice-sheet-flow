@@ -84,10 +84,10 @@ else:
 dt_values = t_final/(fine_system.num_steps*microstep_list)
 popt, pcov = curve_fit(linear, dt_values, rmse_list)
 
-fig, ax = plt.subplots(constrained_layout=True, figsize=(5.4,3.6), dpi=300)
-ax.set_title("RMSE against fine-grained solution", fontname="Latin Modern Roman", fontsize=16)
-ax.set_xlabel(r"$\Delta t$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
-ax.set_ylabel(r"$\text{RMSE}_h$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
+fig, ax = plt.subplots(constrained_layout=True, figsize=(4.8,3.2), dpi=300)
+ax.set_title("RMSE against fine-grained solution", fontname="Latin Modern Roman", fontsize=13)
+ax.set_xlabel(r"$\Delta t$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=13)
+ax.set_ylabel(r"$\text{RMSE}_h$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=13)
 
 ax.scatter(dt_values, rmse_list, c="black")
 ax.plot(dt_values, linear(dt_values,*popt), c="violet", label="Linear fit")
@@ -104,10 +104,10 @@ log_rmse = np.log(rmse_list)
 popt, pcov = curve_fit(linear, log_t, log_rmse)
 
 
-fig, ax = plt.subplots(constrained_layout=True, figsize=(5.4,3.6), dpi=300)
-ax.set_title("RMSE against fine-grained solution - log plot", fontname="Latin Modern Roman", fontsize=16)
-ax.set_xlabel(r"$\log\Delta t$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
-ax.set_ylabel(r"$\log\text{RMSE}_h$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
+fig, ax = plt.subplots(constrained_layout=True, figsize=(4.8,3.2), dpi=300)
+ax.set_title("RMSE against fine-grained solution - log plot", fontname="Latin Modern Roman", fontsize=13)
+ax.set_xlabel(r"$\log\Delta t$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=13)
+ax.set_ylabel(r"$\log\text{RMSE}_h$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=13)
 
 
 ax.scatter(log_t, log_rmse, c="black")

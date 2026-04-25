@@ -35,7 +35,7 @@ x, h = system.x_tnsr, system.h_tnsr
 times_to_plot = [3, 10, 25, 99]
 alphas = [0.3, 0.5, 0.75, 1]
 
-fig, ax = plt.subplots(constrained_layout=True, figsize=(5.4,3.6), dpi=400)
+fig, ax = plt.subplots(constrained_layout=True, figsize=(4.8,3.2), dpi=400)
 
 for i in range(len(times_to_plot)):
     label = f"t = {(times_to_plot[i]*t_final/system.num_steps):.1f}"
@@ -47,7 +47,7 @@ ax.plot(x[:,-1], (1-x[:,-1]), label="Analytical \nsteady state", c="blue", alpha
 plt.legend(prop={"family":"Latin Modern Roman", "size":12})
 ax.set_xlabel(r"$x$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
 ax.set_ylabel(r"$h$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
-ax.set_title("Time evolution of sheet", fontname="Latin Modern Roman", fontsize=16)
+ax.set_title("Time evolution of sheet", fontname="Latin Modern Roman", fontsize=14)
 plt.savefig(folder + "steady_state_plot.png")
 plt.close()
 
