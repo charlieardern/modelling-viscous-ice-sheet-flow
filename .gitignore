@@ -5,3 +5,4 @@ animation_frames
 saved_objects
 solvers/__pycache__
 tests/__pycache__
+steady_animation_frames
