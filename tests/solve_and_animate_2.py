@@ -65,37 +65,6 @@ system = IceSheetSolver(x_bed, b_bed, x_G_0, h_0, D, nu, L, num_microsteps, t_fi
 system.compute_solution()
 x, h, x_shelf, H_shelf = system.x_tnsr, system.h_tnsr, system.x_shelf_tnsr, system.H_shelf_tnsr
 
-
-
-# fig, ax = plt.subplots(constrained_layout=True, figsize=(8,2.9), dpi=400)
-# ax.set_title("Time evolution of ice sheet and shelf", fontname = "Latin Modern Roman", fontsize=16)
-# ax.set_aspect('equal', adjustable='box')
-# ax.set_xlim(0, domain_width)
-# ax.set_ylim(-1.1, 1.1)
-# ax.set_xlabel(r"$x$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
-# ax.set_ylabel(r"$z$ (dimensionless)", fontname = "Latin Modern Roman", fontsize=14)
-# ax.plot(x_bed, -b_bed, c='black', label='bedrock')
-# ax.plot([0,domain_width], [0,0], c="blue", alpha=0.2, label='water line')
-
-# frames_to_plot = [0, 10, 22, 58, 99]
-# alphas = [0.8, 0.9, 0.5, 0.8, 0.8]
-
-# colours = ["red", "orange", "orange", "green", "blue"]
-
-# for j in range(len(frames_to_plot)):
-#     i = frames_to_plot[j]
-#     h_above_water = h[-1,i]
-#     label = f"t = {(i*t_final/system.num_steps):.1f}"
-#     x_coords, h_coords = sheet_and_shelf_coords(x, h, x_shelf, H_shelf)
-#     ax.plot(x_coords, h_coords, alpha = alphas[j], label=label, c=colours[j])
-
-# folder = "figures/"
-# os.makedirs(folder, exist_ok=True)
-
-# plt.legend(fontsize=12)
-# plt.savefig(folder + "plot_at_diff_times.png")
-# print("Complete.")
-
 frames_to_plot = [0, 10, 25, 58, 99]
 alphas = [0.8, 0.8, 0.4, 0.8, 0.8]
 #alphas = np.linspace(0.8,0.8, num=len(frames_to_plot))
