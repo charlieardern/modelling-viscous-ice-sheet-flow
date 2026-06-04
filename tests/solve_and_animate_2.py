@@ -103,7 +103,7 @@ for i, fname in enumerate(filenames):
     im = plt.imshow(img, animated=True)
     ims.append([im])
     if i == (num_frames - 1):
-        ims.extend([[im]] * 200)
+        ims.extend([[im]] * 10)
 fig.tight_layout()
 # Create the animation: interval is in milliseconds.
 ani = animation.ArtistAnimation(
@@ -111,7 +111,7 @@ ani = animation.ArtistAnimation(
     ims,  # type: ignore # noqa: PGH003
     interval=100,
     blit=True,
-    repeat_delay=3000,
+    repeat_delay=0,
 )
 # Save the animation (requires ffmpeg or ImageMagick)
 ani.save(figures_folder + "full_solution.gif", writer="pillow", dpi=200)
